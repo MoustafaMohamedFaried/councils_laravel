@@ -79,8 +79,9 @@
                             <td class="text-center">
                                 <span class="badge rounded-pill text-bg-${response.data.color}">${response.data.type}</span>
                             </td>
+                            <!--
                             <td class="text-center">${response.data.order}</td>
-                            <td class="text-center">${response.data.mainTopicTitle}</td>
+                            <td class="text-center">${response.data.mainTopicTitle}</td> -->
                             <td class="text-center">${response.data.title}</td>
                             <td class="text-center">
                                 <a class="btn btn-secondary btn-sm" role="button" id="viewTopicBtn"

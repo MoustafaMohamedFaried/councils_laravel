@@ -25,8 +25,8 @@
                                     <th scope="col">#</th>
                                     <th scope="col">Code</th>
                                     <th scope="col">Type</th>
-                                    <th scope="col">order</th>
-                                    <th scope="col">Main Topic</th>
+                                    {{-- <th scope="col">order</th> --}}
+                                    {{-- <th scope="col">Main Topic</th> --}}
                                     <th scope="col">Title</th>
                                     <th scope="col">Actions</th>
                                 </tr>
@@ -45,8 +45,8 @@
                                                 <span class="badge rounded-pill text-bg-primary">Sup Topic</span>
                                             @endif
                                         </td>
-                                        <td class="text-center">{{ $topic->order }}</td>
-                                        <td class="text-center">{{ $topic->mainTopic->title ?? '_______' }}</td>
+                                        {{-- <td class="text-center">{{ $topic->order }}</td> --}}
+                                        {{-- <td class="text-center">{{ $topic->mainTopic->title ?? '_______' }}</td> --}}
                                         <td class="text-center">{{ $topic->title }}</td>
                                         <td class="text-center">
                                             <a class="btn btn-secondary btn-sm" role="button" id="viewTopicBtn"
@@ -163,6 +163,98 @@
                 success: function(response) {
                     $("#createFormContent").html(response);
                 }
+            });
+        });
+
+        $(document).on('click', '#viewTopicBtn', function() {
+
+            var topicId = $(this).data('topic-id'); // Get the topic ID from the clicked button
+
+            $.ajax({
+                type: "GET",
+                url: `/topics/${topicId}`,
+                success: function(response) {
+                    $('#viewFormContent').html(response);
+                }
+            });
+        });
+
+        $(document).on('click', '#editTopicBtn', function() {
+
+            var topicId = $(this).data('topic-id'); // Get the topic ID from the clicked button
+
+            $.ajax({
+                type: "GET",
+                url: `/topics/${topicId}/edit`,
+                success: function(response) {
+                    $('#editFormContent').html(response);
+                }
+            });
+        });
+
+        $(document).on('click', '#deleteTopicBtn', function() {
+            var topicId = $(this).data('topic-id'); // Get the topic ID from the clicked button
+            // Show the confirmation modal
+            $('#deleteModal').modal('show');
+
+            // Handle the delete confirmation button click inside the modal
+            $('#confirmDeleteBtn').off('click').on('click', function() {
+                $.ajax({
+                    type: "DELETE",
+                    url: `/topics/${topicId}`,
+                    success: function(response) {
+                        $('#deleteModal').modal('hide'); // Hide the modal after deletion
+
+                        $(`#topic_${topicId}`).remove();
+
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "3500",
+                            "preventDuplicates": true,
+                            "extendedTimeOut": "1000"
+                        };
+
+                        toastr.success(response.message);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("An error occurred: ", error);
+                        console.log(xhr.responseText);
+
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "3000",
+                            "preventDuplicates": true,
+                            "extendedTimeOut": "1000"
+                        };
+
+                        var response = JSON.parse(xhr.responseText);
+
+                        // Display a specific message if the error is due to related data
+                        if (xhr.status === 400 && response.message ===
+                            "There's related data. The topic cannot be deleted.") {
+                            toastr.error(response.message);
+                        } else {
+                            // Concatenate all error messages into a single string
+                            var errorMessage = "";
+
+                            if (response.errors) {
+                                $.each(response.errors, function(field, messages) {
+                                    $.each(messages, function(index, message) {
+                                        errorMessage +=
+                                            `<div class="container">${message}<br></div>`;
+                                    });
+                                });
+
+                                // Display all error messages in a single toastr notification
+                                toastr.error(errorMessage);
+                            }
+                        }
+                    }
+                });
             });
         });
     </script>
