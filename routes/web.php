@@ -5,6 +5,7 @@ use App\Http\Controllers\DepartmentCouncilController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\FacultyCouncilController;
 use App\Http\Controllers\HeadquarterController;
+use App\Http\Controllers\TopicController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -54,3 +55,6 @@ Route::prefix('department-councils')->controller(DepartmentCouncilController::cl
     Route::get('/form/{department_id}', 'getForm')->name('departmentCouncil.getForm');
     Route::post('/formate/{department_id}', 'formateCouncil')->name('departmentCouncil.formate');
 });
+
+
+Route::resource('topics', TopicController::class);
