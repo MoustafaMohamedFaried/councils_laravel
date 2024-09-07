@@ -14,7 +14,7 @@ class HeadquarterController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('is_active');
-        $this->middleware('is_super_admin')->except('index','show');
+        $this->middleware('is_super_or_system_admin')->except('index','show');
         $this->middleware('ajax_only')->except('index');
     }
     /**

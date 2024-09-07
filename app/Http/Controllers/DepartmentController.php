@@ -17,7 +17,7 @@ class DepartmentController extends Controller
     {
         $this->middleware('auth')->except('getDepartmentsByFaculty');
         $this->middleware('is_active')->except('getDepartmentsByFaculty');
-        $this->middleware('is_super_admin')->except('index','show','getDepartmentsByFaculty');
+        $this->middleware('is_super_or_system_admin')->except('index','show','getDepartmentsByFaculty');
         $this->middleware('ajax_only')->except('index','edit');
     }
     /**

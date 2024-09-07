@@ -19,7 +19,7 @@ class FacultyController extends Controller
     {
         $this->middleware('auth')->except('getFacultiesByHeadquarter');
         $this->middleware('is_active')->except('getFacultiesByHeadquarter');
-        $this->middleware('is_super_admin')->except('index','show','getFacultiesByHeadquarter');
+        $this->middleware('is_super_or_system_admin')->except('index','show','getFacultiesByHeadquarter');
         $this->middleware('ajax_only')->except('index','edit');
     }
 

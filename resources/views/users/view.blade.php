@@ -25,10 +25,10 @@
             Related Info
         </div>
         <div class="card-body row">
-            <p class="col-md-6"><b>Role:</b> {{ $user->role->name ?? 'صلاحية' }}</p>
+            <p class="col-md-6"><b>Role:</b> {{ $user->roles->first()->name ?? 'صلاحية' }}</p> <!-- display role name -->
             <p class="col-md-6"><b>Position:</b> {{ $user->position->ar_name ?? 'بدون منصب' }}</p>
-            <p class="col-md-6"><b>Faculty:</b> {{ $user->faculty->ar_name }}</p>
-            <p class="col-md-6"><b>Headquarter:</b> {{ $user->headquarter->ar_name }}</p>
+            <p class="col-md-6"><b>Faculty:</b> {{ $user->faculty->ar_name ?? 'بدون كلية' }}</p>
+            <p class="col-md-6"><b>Headquarter:</b> {{ $user->headquarter->ar_name ?? 'بدون مقر' }}</p>
         </div>
     </div>
 

@@ -16,7 +16,7 @@ class UserController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('is_active');
-        $this->middleware('is_super_admin')->except('registerRequestDecision', 'registerRequests');
+        $this->middleware('is_super_or_system_admin')->except('registerRequestDecision', 'registerRequests');
         $this->middleware('ajax_only')->except('index','registerRequests');
     }
     /**
@@ -24,7 +24,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::whereNot('name','Super Admin')->paginate(10);
+        // $users = User::whereNot('name','Super Admin')->paginate(10);
+        $users = User::paginate(10);
         return view("users.index", compact('users'));
     }
 

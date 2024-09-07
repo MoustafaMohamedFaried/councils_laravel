@@ -63,12 +63,14 @@
                             @endif
                         @else
                             {{-- if user has position head of department or super admin --}}
-                            @if (auth()->user()->position_id == 3 || auth()->user()->name == 'Super Admin')
+                            @if (auth()->user()->position_id == 3 ||
+                                    auth()->user()->hasRole('Super Admin') ||
+                                    auth()->user()->hasRole('System Admin'))
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('users.registerRequests') }}">Register Requests</a>
                                 </li>
                             @endif
-                            @if (auth()->user()->email == 'super@gmail.com' || auth()->user()->name == 'Super Admin')
+                            @if (auth()->user()->hasRole('Super Admin') || auth()->user()->hasRole('System Admin'))
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('users.index') }}">Users</a>
                                 </li>

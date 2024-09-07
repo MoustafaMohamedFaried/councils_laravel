@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -13,17 +14,45 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // **Create Super Admin User**
+        $superAdmin = User::create([
+            'name' => 'Super Admin',
+            'email' => 'super@gmail.com',
+            'email_verified_at' => now(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'is_active' => 1 // active
+        ]);
+
+        // **Create System Admin User**
+        $systemAdmin = User::create([
+            'name' => 'System Admin',
+            'email' => 'system_admin@gmail.com',
+            'email_verified_at' => now(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'is_active' => 1 // active
+        ]);
+
+        $facultyAdmin = User::create([
+            'name' => 'Faculty Admin',
+            'email' => 'faculty_admin@gmail.com',
+            'email_verified_at' => now(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'is_active' => 1 // active
+        ]);
+
+        // **Create Roles**
+        $superAdminRole = Role::where('name', 'Super Admin')->first();
+        $systemAdminRole = Role::where('name', 'System Admin')->first();
+        $facultyAdminRole = Role::where('name', 'Faculty Admin')->first();
+        $userRole = Role::where('name', 'Member')->first();
+
+        // **Assign Roles to Users**
+        $superAdmin->assignRole($superAdminRole);
+        $systemAdmin->assignRole($systemAdminRole);
+        $facultyAdmin->assignRole($facultyAdminRole);
 
         $users =
             [
-                [
-                    'id' => 1,
-                    'name' => 'Super Admin',
-                    'email' => 'super@gmail.com',
-                    'faculty_id' => null,
-                    'position_id' => null,
-                    'headquarter_id' => null,
-                ],
                 [
                     'id' => 29,
                     'name' => 'دكتور /سعد بن علي الجلعود',
@@ -227,7 +256,7 @@ class UserSeeder extends Seeder
             ];
 
         foreach ($users as $userData) {
-            User::create([
+            $user = User::create([
                 'id' => $userData['id'],
                 'name' => $userData['name'],
                 'email' => $userData['email'],
@@ -241,6 +270,7 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            $user->assignRole($userRole);  // Assign role to the created user
         }
     }
 }

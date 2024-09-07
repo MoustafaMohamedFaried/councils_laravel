@@ -18,7 +18,7 @@ class DepartmentCouncilController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('is_active');
-        $this->middleware('is_super_admin');
+        $this->middleware('is_super_or_system_admin');
         $this->middleware('ajax_only');
     }
     public function getForm($department_id)
