@@ -16,28 +16,28 @@ class DepartmentSeeder extends Seeder
         $departments = [
             [
                 'id' => 10,
-                'code' => 'dept_9',
+                'code' => 'dept_119',
                 'ar_name' => 'قسم الجغرافيا',
                 'en_name' => 'Department of Geography',
                 'faculty_id' => 11,
             ],
             [
                 'id' => 13,
-                'code' => 'dept_10',
+                'code' => 'dept_157',
                 'ar_name' => 'قسم السنة و علومها',
                 'en_name' => 'Department of Sunnah and its Sciences',
                 'faculty_id' => 10,
             ],
             [
                 'id' => 14,
-                'code' => 'dept_11',
+                'code' => 'dept_666',
                 'ar_name' => 'قسم الكيمياء الطبية والعقاقير',
                 'en_name' => 'Department of Medicinal Chemistry and Pharmacognosy',
                 'faculty_id' => 12,
             ],
             [
                 'id' => 16,
-                'code' => 'dept_12',
+                'code' => 'dept_222',
                 'ar_name' => 'قسم علم النفس',
                 'en_name' => 'Department of Psychology',
                 'faculty_id' => 13,

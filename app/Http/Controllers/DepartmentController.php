@@ -17,8 +17,8 @@ class DepartmentController extends Controller
     {
         $this->middleware('auth')->except('getDepartmentsByFaculty');
         $this->middleware('is_active')->except('getDepartmentsByFaculty');
-        $this->middleware('is_super_or_system_admin')->except('index','show','getDepartmentsByFaculty');
-        $this->middleware('ajax_only')->except('index','edit');
+        $this->middleware('is_super_or_system_admin')->except('index', 'show', 'getDepartmentsByFaculty');
+        $this->middleware('ajax_only')->except('index', 'edit');
     }
     /**
      * Display a listing of the resource.
@@ -44,23 +44,14 @@ class DepartmentController extends Controller
     public function store(StoreDepartmentRequest $request)
     {
         try {
-            // Get the latest code from the database
-            $latestCode = Department::latest('id')->first()->code ?? 'dept_0';
-
-            // Extract the number part from the latest code
-            $latestNumber = intval(preg_replace('/[^0-9]+/', '', $latestCode));
-
-            // Increment the number
-            $newNumber = $latestNumber + 1;
-
-            // Generate the new code
-            $newCode = 'dept_' . $newNumber;
+            // let code contain dept_ + random of 3 digit number
+            $code = 'dept_' . rand(100, 999);
 
             Department::create([
                 'ar_name' => $request->ar_name,
                 'en_name' => $request->en_name,
                 'faculty_id' => $request->faculty_id,
-                'code' => $newCode,
+                'code' => $code,
             ]);
 
             $departmentData = Department::latest('id')->with('faculty')->first()->toArray();

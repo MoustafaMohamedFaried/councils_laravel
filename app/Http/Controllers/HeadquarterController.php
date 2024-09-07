@@ -14,7 +14,7 @@ class HeadquarterController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('is_active');
-        $this->middleware('is_super_or_system_admin')->except('index','show');
+        $this->middleware('is_super_or_system_admin')->except('index', 'show');
         $this->middleware('ajax_only')->except('index');
     }
     /**
@@ -40,23 +40,14 @@ class HeadquarterController extends Controller
     public function store(StoreHeadquarterRequest $request)
     {
         try {
-            // Get the latest code from the database
-            $latestCode = Headquarter::latest('id')->first()->code ?? 'hq_0';
-
-            // Extract the number part from the latest code
-            $latestNumber = intval(preg_replace('/[^0-9]+/', '', $latestCode));
-
-            // Increment the number
-            $newNumber = $latestNumber + 1;
-
-            // Generate the new code
-            $newCode = 'hq_' . $newNumber;
+            // let code contain hq_ + random of 3 digit number
+            $code = 'hq_' . rand(100, 999);
 
             Headquarter::create([
                 'ar_name' => $request->ar_name,
                 'en_name' => $request->en_name,
                 'address' => $request->address,
-                'code' => $newCode,
+                'code' => $code,
             ]);
 
             $headquarterData = Headquarter::latest('id')->first()->toArray();

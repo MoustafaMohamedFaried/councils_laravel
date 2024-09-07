@@ -38,23 +38,14 @@ class FacultyController extends Controller
     public function store(StoreFacultyRequest $request)
     {
         try {
-            // Get the latest code from the database
-            $latestCode = Faculty::latest('id')->first()->code ?? 'fa_0';
-
-            // Extract the number part from the latest code
-            $latestNumber = intval(preg_replace('/[^0-9]+/', '', $latestCode));
-
-            // Increment the number
-            $newNumber = $latestNumber + 1;
-
-            // Generate the new code
-            $newCode = 'fa_' . $newNumber;
+            // let code contain fa_ + random of 3 digit number
+            $code = 'fa_' . rand(100, 999);
 
             Faculty::create([
                 'ar_name' => $request->ar_name,
                 'en_name' => $request->en_name,
                 'headquarter_id' => $request->headquarter_id,
-                'code' => $newCode,
+                'code' => $code,
             ]);
 
             $facultyData = Faculty::latest('id')->first()->toArray();

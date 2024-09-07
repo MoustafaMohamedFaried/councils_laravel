@@ -22,7 +22,8 @@ class TopicController extends Controller
      */
     public function create()
     {
-        //
+        $mainTopics = Topic::whereNull('main_topic_id')->get();
+        return view('topics.create', compact('mainTopics'));
     }
 
     /**
@@ -30,7 +31,28 @@ class TopicController extends Controller
      */
     public function store(StoreTopicRequest $request)
     {
-        //
+        // let code contain tpc_ + random of 3 digit number
+        $code = 'tpc_' . rand(100,999);
+
+        $latestRecord = Topic::latest('id')->first();
+
+        $latestOrder = intval($latestRecord->order ?? '0');
+        $newOrder = $latestOrder + 1;
+
+        $topic = Topic::create([
+            'title' => $request->title,
+            'code' => $code,
+            'order' => $newOrder,
+            'main_topic_id' => $request->main_topic_id,
+        ]);
+
+        $mainTopicTitle = Topic::where('id', $topic->main_topic_id)->value('title') ?? '_______';
+        $type = $topic->main_topic_id ? 'Sub Topic' : 'Main Topic';
+        $color = $type == 'Main Topic' ? 'success' : 'primary';
+
+        $data = array_merge($topic->toArray(), ['color' => $color, 'type' => $type, 'mainTopicTitle' => $mainTopicTitle]);
+
+        return response()->json(['message' => 'Topic created successfully', 'data' => $data], 200);
     }
 
     /**

@@ -16,28 +16,28 @@ class FacultySeeder extends Seeder
         $faculties = [
             [
                 'id' => 10,
-                'code' => 'fa_9',
+                'code' => 'fa_153',
                 'ar_name' => 'كلية الشريعه والدراسات الأسلامية ببريدة',
                 'en_name' => 'College of Sharia and Islamic Studies in Buraidah',
                 'headquarter_id' => 6,
             ],
             [
                 'id' => 11,
-                'code' => 'fa_10',
+                'code' => 'fa_901',
                 'ar_name' => 'كلية الأداب والعلوم ببريدة',
                 'en_name' => 'College of Arts and Sciences in Buraidah',
                 'headquarter_id' => 7,
             ],
             [
                 'id' => 12,
-                'code' => 'fa_11',
+                'code' => 'fa_888',
                 'ar_name' => 'كلية الصيدلة بعنيزة ',
                 'en_name' => 'college of Pharmacy in Unayzah ',
                 'headquarter_id' => 6,
             ],
             [
                 'id' => 13,
-                'code' => 'fa_12',
+                'code' => 'fa_162',
                 'ar_name' => 'كلية اللغات والعلوم الإنسانية بعنيزة',
                 'en_name' => 'college of Humanity in Unazah',
                 'headquarter_id' => 7,

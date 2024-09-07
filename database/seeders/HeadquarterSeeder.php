@@ -16,14 +16,14 @@ class HeadquarterSeeder extends Seeder
         $headquarters = [
             [
                 'id' => 6,
-                'code' => 'hq_6',
+                'code' => 'hq_609',
                 'en_name' => 'Briyda',
                 'ar_name' => 'بريدة',
                 'address' => 'القصيم - بريدة',
             ],
             [
                 'id' => 7,
-                'code' => 'hq_7',
+                'code' => 'hq_770',
                 'en_name' => 'Unizaha',
                 'ar_name' => 'عنيزة',
                 'address' => 'القصيم - عنيزة',
