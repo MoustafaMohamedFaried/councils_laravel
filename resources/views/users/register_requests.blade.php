@@ -21,7 +21,9 @@
                                     <th scope="col">#</th>
                                     <th scope="col">Name</th>
                                     <th scope="col">Email</th>
-                                    <th scope="col">Faculty</th>
+                                    @if (auth()->user()->hasRole('Super Admin') || auth()->user()->hasRole('System Admin'))
+                                        <th scope="col">Faculty</th>
+                                    @endif
                                     <th scope="col">Department</th>
                                     <th scope="col">Requested at</th>
                                     <th scope="col">Actions</th>
@@ -35,7 +37,9 @@
                                         <th class="text-center" scope="row">{{ $x }}</th>
                                         <td class="text-center">{{ $request->user->name }}</td>
                                         <td class="text-center">{{ $request->user->email }}</td>
-                                        <td class="text-center">{{ $request->department->faculty->ar_name }}</td>
+                                        @if (auth()->user()->hasRole('Super Admin') || auth()->user()->hasRole('System Admin'))
+                                            <td class="text-center">{{ $request->department->faculty->ar_name }}</td>
+                                        @endif
                                         <td class="text-center">{{ $request->department->ar_name }}</td>
                                         <td class="text-center">{{ $request->created_at }}</td>
                                         <td class="text-center">
@@ -146,7 +150,7 @@
                         error: function(xhr, status, error) {
                             alert(
                                 'An error occurred. Please try again.'
-                                ); // Handle error response
+                            ); // Handle error response
                         }
                     });
                 }

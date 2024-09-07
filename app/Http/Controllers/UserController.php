@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
+use App\Models\DepartmentCouncil;
 use App\Models\Faculty;
 use App\Models\Headquarter;
 use App\Models\Position;
@@ -154,8 +155,18 @@ class UserController extends Controller
 
     public function registerRequests()
     {
-        if (auth()->user()->position_id == 3 || auth()->user()->hasRole('Super Admin')) {
-            $requests = RegisterRequest::orderBy('created_at','desc')->paginate(10); // orderd Descending
+        if (auth()->user()->hasRole('Super Admin')) {
+            $requests = RegisterRequest::orderBy('created_at', 'desc')->paginate(10); // orderd Descending
+            return view('users.register_requests', compact('requests'));
+        } elseif (auth()->user()->position_id == 3) {
+            $departmentIds = DepartmentCouncil::where('user_id', auth()->user()->id)
+                ->pluck('department_id')
+                ->toArray();
+
+            $requests = RegisterRequest::whereIn('department_id', $departmentIds)
+                ->orderBy('created_at', 'desc')
+                ->paginate(10); // orderd Descending
+
             return view('users.register_requests', compact('requests'));
         } else {
             abort(401); // Unauthorized
@@ -167,7 +178,7 @@ class UserController extends Controller
         if (auth()->user()->position_id == 3 || auth()->user()->hasRole('Super Admin')) {
 
             $user = User::findOrFail($user_id);
-            $userRequest = RegisterRequest::where('user_id',$user_id);
+            $userRequest = RegisterRequest::where('user_id', $user_id);
 
             if ($request->decision == 1) {
                 $user->update([
