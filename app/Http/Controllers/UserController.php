@@ -6,9 +6,11 @@ use App\Http\Requests\StoreUserRequest;
 use App\Models\Faculty;
 use App\Models\Headquarter;
 use App\Models\Position;
+use App\Models\RegisterRequest;
 use App\Models\User;
 use Dotenv\Exception\ValidationException;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -17,7 +19,7 @@ class UserController extends Controller
         $this->middleware('auth');
         $this->middleware('is_active');
         $this->middleware('is_super_or_system_admin')->except('registerRequestDecision', 'registerRequests');
-        $this->middleware('ajax_only')->except('index','registerRequests');
+        $this->middleware('ajax_only')->except('index', 'registerRequests');
     }
     /**
      * Display a listing of the resource.
@@ -37,8 +39,15 @@ class UserController extends Controller
         $positions = Position::get();
         $headquarters = Headquarter::get();
         $faculties = Faculty::get();
+        $roles = Role::get();
 
-        return view("users.create", compact('positions', 'headquarters', 'faculties'));
+        $data = [
+            'positions' => $positions,
+            'headquarters' => $headquarters,
+            'faculties' => $faculties,
+            'roles' => $roles,
+        ];
+        return view("users.create", compact('data'));
     }
 
     /**
@@ -47,7 +56,7 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         try {
-            User::create([
+            $insertUser = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'position_id' => $request->position_id,
@@ -56,6 +65,9 @@ class UserController extends Controller
                 'headquarter_id' => $request->headquarter_id,
                 'is_active' => 1 // let user active
             ]);
+
+            $userRole = Role::where('name', $request->role)->first();
+            $insertUser->assignRole($userRole);  // Assign role to the created user
 
             $userData = User::latest('id')->first()->toArray();
 
@@ -142,18 +154,20 @@ class UserController extends Controller
 
     public function registerRequests()
     {
-        if (auth()->user()->position_id == 3 || auth()->user()->name == 'Super Admin') {
-            $users = User::where('is_active', 2)->paginate(10);
-            return view('users.register_requests', compact('users'));
-        }else{
+        if (auth()->user()->position_id == 3 || auth()->user()->hasRole('Super Admin')) {
+            $requests = RegisterRequest::orderBy('created_at','desc')->paginate(10); // orderd Descending
+            return view('users.register_requests', compact('requests'));
+        } else {
             abort(401); // Unauthorized
         }
     }
 
     public function registerRequestDecision($user_id, Request $request)
     {
-        if (auth()->user()->position_id == 3 || auth()->user()->name == 'Super Admin') {
+        if (auth()->user()->position_id == 3 || auth()->user()->hasRole('Super Admin')) {
+
             $user = User::findOrFail($user_id);
+            $userRequest = RegisterRequest::where('user_id',$user_id);
 
             if ($request->decision == 1) {
                 $user->update([
@@ -167,8 +181,10 @@ class UserController extends Controller
                 $message = "User now is not-active";
             }
 
+            $userRequest->delete();
+
             return response()->json(['message' => $message], 200);
-        }else{
+        } else {
             abort(401); // Unauthorized
         }
     }

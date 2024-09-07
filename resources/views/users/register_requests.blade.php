@@ -14,40 +14,46 @@
                 </div>
 
                 <div class="card-body">
-                    @if ($users->isNotEmpty())
+                    @if ($requests->isNotEmpty())
                         <table class="table table-striped table-hover">
                             <thead class="text-center">
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Name</th>
                                     <th scope="col">Email</th>
+                                    <th scope="col">Faculty</th>
+                                    <th scope="col">Department</th>
+                                    <th scope="col">Requested at</th>
                                     <th scope="col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="table_body" id="userContainer">
                                 @php $x = 0; @endphp
-                                @foreach ($users as $user)
+                                @foreach ($requests as $request)
                                     @php $x++; @endphp
-                                    <tr id="user_{{ $user->id }}">
+                                    <tr id="user_{{ $request->user->id }}">
                                         <th class="text-center" scope="row">{{ $x }}</th>
-                                        <td class="text-center">{{ $user->name }}</td>
-                                        <td class="text-center">{{ $user->email }}</td>
+                                        <td class="text-center">{{ $request->user->name }}</td>
+                                        <td class="text-center">{{ $request->user->email }}</td>
+                                        <td class="text-center">{{ $request->department->faculty->ar_name }}</td>
+                                        <td class="text-center">{{ $request->department->ar_name }}</td>
+                                        <td class="text-center">{{ $request->created_at }}</td>
                                         <td class="text-center">
-                                            <a class="btn btn-secondary btn-sm" role="button" id="viewUserBtn"
-                                                data-user-id="{{ $user->id }}" data-bs-toggle="modal"
-                                                data-bs-target="#viewModal">View</a>
+                                            {{-- <a class="btn btn-secondary btn-sm" role="button" id="viewUserBtn"
+                                                data-user-id="{{ $request->user->id }}" data-bs-toggle="modal"
+                                                data-bs-target="#viewModal">View</a> --}}
 
                                             <a class="btn btn-success btn-sm decisionBtn" role="button"
-                                                data-user-id="{{ $user->id }}" data-decision="1">Accept</a>
+                                                data-user-id="{{ $request->user->id }}" data-decision="1">Accept</a>
 
                                             <a class="btn btn-danger btn-sm decisionBtn" role="button"
-                                                data-user-id="{{ $user->id }}" data-decision="2">Reject</a>
+                                                data-user-id="{{ $request->user->id }}" data-decision="2">Reject</a>
                                         </td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
-                        {{ $users->links('pagination::bootstrap-5') }}
+                        {{ $requests->links('pagination::bootstrap-5') }}
                     @else
                         <p class="text-center text-danger">No register requests</p>
                     @endif

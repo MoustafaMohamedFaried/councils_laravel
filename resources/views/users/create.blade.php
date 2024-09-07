@@ -1,55 +1,97 @@
 <form id="CreateForm">
     @csrf
 
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <div class="form-floating">
-                <input type="text" class="form-control" id="Name" name="name" placeholder="Name">
-                <label for="Name">Name</label>
-            </div>
+    {{-- personal info --}}
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="card-title">Personal Info</h5>
         </div>
 
-        <div class="col-md-6">
-            <div class="form-floating">
-                <input type="email" class="form-control" id="Email" name="email" placeholder="Email">
-                <label for="Email">Email</label>
+        <div class="card-body">
+            {{-- Name and email section --}}
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="Name" name="name" placeholder="Name">
+                        <label for="Name">Name</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-floating">
+                        <input type="email" class="form-control" id="Email" name="email" placeholder="Email">
+                        <label for="Email">Email</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="Password" name="password" placeholder="Password">
+                <label for="Password">Password</label>
             </div>
         </div>
     </div>
 
-    <div class="form-floating">
-        <input type="password" class="form-control" id="Password" name="password" placeholder="Password">
-        <label for="Password">Password</label>
-    </div>
 
-    <div class="form-floating mb-3">
-        <select class="form-select" id="positionId" name="position_id">
-            <option disabled selected value>Select Position</option>
-            @foreach ($positions as $position)
-                <option value="{{ $position->id }}"> {{ $position->ar_name }}</option>
-            @endforeach
-        </select>
-        <label for="positionId">Position</label>
-    </div>
+    {{-- related info --}}
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="card-title">Related Info</h5>
+        </div>
 
-    <div class="form-floating mb-3">
-        <select class="form-select" id="headquarterId" name="headquarter_id">
-            <option disabled selected value>Select Headquarter</option>
-            @foreach ($headquarters as $headquarter)
-                <option value="{{ $headquarter->id }}"> {{ $headquarter->ar_name }}</option>
-            @endforeach
-        </select>
-        <label for="headquarterId">Headquarter</label>
-    </div>
+        <div class="card-body">
+            {{-- Role and position section --}}
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="Role" name="role">
+                            <option disabled selected value>Select Role</option>
+                            @foreach ($data['roles'] as $role)
+                                <option value="{{ $role->name }}"> {{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                        <label for="Role">Role</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="positionId" name="position_id">
+                            <option disabled selected value>Select Position</option>
+                            @foreach ($data['positions'] as $position)
+                                <option value="{{ $position->id }}"> {{ $position->ar_name }}</option>
+                            @endforeach
+                        </select>
+                        <label for="positionId">Position</label>
+                    </div>
+                </div>
+            </div>
 
-    <div class="form-floating mb-3">
-        <select class="form-select" id="facultyId" name="faculty_id" disabled>
-            <option disabled selected value>Select Faculty</option>
-            @foreach ($faculties as $faculty)
-                <option value="{{ $faculty->id }}"> {{ $faculty->ar_name }}</option>
-            @endforeach
-        </select>
-        <label for="facultyId">Faculty</label>
+            {{-- Headquarter and faculty section --}}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="headquarterId" name="headquarter_id">
+                            <option disabled selected value>Select Headquarter</option>
+                            @foreach ($data['headquarters'] as $headquarter)
+                                <option value="{{ $headquarter->id }}"> {{ $headquarter->ar_name }}</option>
+                            @endforeach
+                        </select>
+                        <label for="headquarterId">Headquarter</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="facultyId" name="faculty_id" disabled>
+                            <option disabled selected value>Select Faculty</option>
+                            @foreach ($data['faculties'] as $faculty)
+                                <option value="{{ $faculty->id }}"> {{ $faculty->ar_name }}</option>
+                            @endforeach
+                        </select>
+                        <label for="facultyId">Faculty</label>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="form-floating mb-3">
@@ -118,6 +160,7 @@
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
+                role: formData.role,
                 position_id: formData.position_id,
                 faculty_id: formData.faculty_id,
                 headquarter_id: formData.headquarter_id,
@@ -152,6 +195,7 @@
                             <th class="text-center" scope="row">${nextIndex}</th>
                             <td class="text-center">${response.data.name}</td>
                             <td class="text-center">${response.data.email}</td>
+                            <td class="text-center"><span class="badge rounded-pill text-bg-success">Active</span></td>
                             <td class="text-center">
                                 <a class="btn btn-secondary btn-sm" role="button" id="viewUserBtn"
                                     data-user-id="${response.data.id}" data-bs-toggle="modal"

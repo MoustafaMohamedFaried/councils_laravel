@@ -22,6 +22,7 @@ class StoreUserRequest extends FormRequest
             'headquarter_id' => 'required',
             'faculty_id' => 'required',
             'position_id' => 'required',
+            'role' => 'required',
         ];
     }
     public function messages(): array
@@ -32,6 +33,7 @@ class StoreUserRequest extends FormRequest
             'headquarter_id.required' => 'Headquarter is required',
             'position_id.required' => 'Position is required',
             'faculty_id.required' => 'Faculty is required',
+            'role.required' => 'Role is required',
         ];
     }
 }

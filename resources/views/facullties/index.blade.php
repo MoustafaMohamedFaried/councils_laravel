@@ -12,7 +12,7 @@
                 <div class="card-header row">
                     <h6 class="col-md-11">Faculties</h6>
 
-                    @if (auth()->user()->name == 'Super Admin' || auth()->user()->email == 'super@gmail.com')
+                    @if (auth()->user()->hasRole('Super Admin'))
                         <a class="col-md-1 btn btn-success btn-sm" id="createFacultyBtn" type="button" role="button"
                             data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
                     @endif
@@ -43,7 +43,7 @@
                                             <a class="btn btn-secondary btn-sm" role="button" id="viewFacultyBtn"
                                                 data-faculty-id="{{ $faculty->id }}" data-bs-toggle="modal"
                                                 data-bs-target="#viewModal">View</a>
-                                            @if (auth()->user()->name == 'Super Admin' || auth()->user()->email == 'super@gmail.com')
+                                            @if (auth()->user()->hasRole('Super Admin'))
                                                 <a class="btn btn-primary btn-sm" role="button" id="editBtn"
                                                     href="{{ route('faculties.edit', $faculty->id) }}">Edit</a>
 

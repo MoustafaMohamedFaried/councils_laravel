@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Faculty;
 use App\Models\Headquarter;
+use App\Models\RegisterRequest;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
 class RegisterController extends Controller
 {
@@ -72,8 +74,7 @@ class RegisterController extends Controller
 
     protected function create(array $data)
     {
-        // dd($data); 
-        return User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
@@ -83,5 +84,16 @@ class RegisterController extends Controller
             'position_id' => 1, // acadimic staff
             'is_active' => 2 // pending to accept from head of department
         ]);
+
+        // add user to table register requests
+        RegisterRequest::create([
+            'user_id' => $user->id,
+            'department_id' => $data['department_id'],
+        ]);
+
+        $userRole = Role::where('name', 'Member')->first();
+        $user->assignRole($userRole);  // Assign role to the created user
+
+        return $user;
     }
 }

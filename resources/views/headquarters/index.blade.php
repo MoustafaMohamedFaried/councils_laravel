@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header row">
                     <h6 class="col-md-11">Headquarters</h6>
-                    @if (auth()->user()->name == 'Super Admin' || auth()->user()->email == 'super@gmail.com')
+                    @if (auth()->user()->hasRole('Super Admin'))
                         <a class="col-md-1 btn btn-success btn-sm" id="createHeadquarterBtn" type="button" role="button"
                             data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
                     @endif
@@ -42,7 +42,7 @@
                                             <a class="btn btn-secondary btn-sm" role="button" id="viewHeadquarterBtn"
                                                 data-headquarter-id="{{ $headquarter->id }}" data-bs-toggle="modal"
                                                 data-bs-target="#viewModal">View</a>
-                                            @if (auth()->user()->name == 'Super Admin' || auth()->user()->email == 'super@gmail.com')
+                                            @if (auth()->user()->hasRole('Super Admin'))
                                                 <a class="btn btn-primary btn-sm" role="button" id="editHeadquarterBtn"
                                                     data-headquarter-id="{{ $headquarter->id }}" data-bs-toggle="modal"
                                                     data-bs-target="#editModal">Edit</a>
