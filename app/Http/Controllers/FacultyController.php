@@ -19,8 +19,8 @@ class FacultyController extends Controller
     {
         $this->middleware('auth')->except('getFacultiesByHeadquarter');
         $this->middleware('is_active')->except('getFacultiesByHeadquarter');
-        $this->middleware('is_super_or_system_admin')->except('index','show','getFacultiesByHeadquarter');
-        $this->middleware('ajax_only')->except('index','edit');
+        $this->middleware('is_super_or_system_admin')->except('index', 'show', 'getFacultiesByHeadquarter');
+        $this->middleware('ajax_only')->except('index', 'edit');
     }
 
     public function index()
@@ -81,19 +81,30 @@ class FacultyController extends Controller
         // pass headquarters except the faculty's headquarter
         $headquarters = Headquarter::whereNot('id', $faculty->headquarter_id)->get();
 
-        $facultyCouncilUserIds = FacultyCouncil::where('faculty_id', $faculty_id)->pluck('user_id')->toArray();
-        $facultyCouncilUserPositionIds = FacultyCouncil::where('faculty_id', $faculty_id)->pluck('position_id')->toArray();
+        $deanOfCollege = FacultyCouncil::where('faculty_councils.faculty_id', $faculty_id)
+            ->where('faculty_councils.position_id', 5)
+            ->join('users', 'users.id', '=', 'faculty_councils.user_id')
+            ->select('users.name as user_name');
 
-        $facultyCouncilUsers = User::whereIn('id', $facultyCouncilUserIds)->pluck('name')->toArray();
-        $facultyCouncilUserPositions = Position::whereIn('id', $facultyCouncilUserPositionIds)->pluck('ar_name')->toArray();
+        $secertaryOfCollegeCouncil = FacultyCouncil::where('faculty_councils.faculty_id', $faculty_id)
+            ->where('faculty_councils.position_id', 4)
+            ->join('users', 'users.id', '=', 'faculty_councils.user_id')
+            ->select('users.name as user_name');
 
-        $facultyCouncil = array_combine($facultyCouncilUsers, $facultyCouncilUserPositions);
+        $memebers = FacultyCouncil::where('faculty_councils.faculty_id', $faculty_id)
+            ->where('faculty_councils.position_id', 1)
+            ->join('users', 'users.id', '=', 'faculty_councils.user_id')
+            ->select('users.name as user_name');
 
         $data = [
             'faculty' => $faculty,
             'facultyDepartments' => $facultyDepartments,
             'headquarters' => $headquarters,
-            'facultyCouncil' => $facultyCouncil,
+            'facultyCouncil' => [
+                'عميد الكلية' => $deanOfCollege->value('user_name'),
+                'امين مجلس الكلية' => $secertaryOfCollegeCouncil->value('user_name'),
+                'الاعضاء' => $memebers->value('user_name'),
+            ],
         ];
         // dd($data);
         return view('facullties.edit', compact('data'));

@@ -57,21 +57,27 @@
                     <div class="card-body">
                         @if ($data['departmentCouncil'])
                             <table class="table table-striped table-hover">
-                                <thead class="text-center">
+                                {{-- <thead class="text-center">
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Position</th>
                                     </tr>
-                                </thead>
+                                </thead> --}}
                                 <tbody class="table_body" id="councilContainer">
                                     @php $x = 0; @endphp
                                     @foreach ($data['departmentCouncil'] as $name => $position)
-                                        @php $x++; @endphp
+                                        {{-- @php $x++; @endphp
                                         <tr id="councilRow">
                                             <th class="text-center" scope="row">{{ $x }}</th>
                                             <td class="text-center">{{ $name }}</td>
                                             <td class="text-center">{{ $position }}</td>
+                                        </tr> --}}
+                                        @php $x++; @endphp
+                                        <tr>
+                                            <th class="text-center" scope="row">{{ $x }}</th>
+                                            <td class="text-center">{{ $position }}</td>
+                                            <td scope="col" class="text-center">{{ $name }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -235,6 +241,5 @@
                 }
             });
         });
-
     </script>
 @endsection

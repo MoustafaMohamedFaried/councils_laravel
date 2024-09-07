@@ -92,18 +92,28 @@ class DepartmentController extends Controller
         $department = Department::findOrFail($department_id);
         $faculties = Faculty::whereNot('id', $department->faculty_id)->get();
 
-        $departmentCouncilUserIds = DepartmentCouncil::where('department_id', $department_id)->pluck('user_id')->toArray();
-        $departmentCouncilUserPositionIds = DepartmentCouncil::where('department_id', $department_id)->pluck('position_id')->toArray();
+        $headOfDepartment = DepartmentCouncil::where('department_councils.department_id', $department_id)
+            ->where('department_councils.position_id', 3)
+            ->join('users', 'users.id', '=', 'department_councils.user_id')
+            ->select('users.name as user_name');
 
-        $departmentCouncilUsers = User::whereIn('id', $departmentCouncilUserIds)->pluck('name')->toArray();
-        $departmentCouncilUserPositions = Position::whereIn('id', $departmentCouncilUserPositionIds)->pluck('ar_name')->toArray();
+        $secertaryOfDepartmentCouncil = DepartmentCouncil::where('department_councils.department_id', $department_id)
+            ->where('department_councils.position_id', 2)
+            ->join('users', 'users.id', '=', 'department_councils.user_id')
+            ->select('users.name as user_name');
 
-        $departmentCouncil = array_combine($departmentCouncilUsers, $departmentCouncilUserPositions);
-
+        $memebers = DepartmentCouncil::where('department_councils.department_id', $department_id)
+            ->where('department_councils.position_id', 1)
+            ->join('users', 'users.id', '=', 'department_councils.user_id')
+            ->select('users.name as user_name');
         $data = [
             'department' => $department,
             'faculties' => $faculties,
-            'departmentCouncil' => $departmentCouncil,
+            'departmentCouncil' => [
+                'رئيس القسم' => $headOfDepartment->value('user_name'),
+                'امين مجلس القسم' => $secertaryOfDepartmentCouncil->value('user_name'),
+                'الاعضاء' => $memebers->value('user_name'),
+            ],
         ];
         return view('departments.edit', compact('data'));
     }
