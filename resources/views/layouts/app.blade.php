@@ -92,108 +92,115 @@
         <div class="container-fluid">
             <div class="row">
                 <!-- Sidebar -->
-                <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-                    <div class="position-sticky">
-                        <ul class="nav flex-column">
+                @auth
+                    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                        <div class="position-sticky">
+                            <ul class="nav flex-column">
 
-                            <!-- Accordion Section -->
-                            <li class="nav-item">
+                                <!-- Accordion Section -->
+                                <li class="nav-item">
 
-                                <!-- users management accordion item -->
-                                <div class="accordion" id="accordionSidebar1">
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header" id="headingOne">
-                                            <button class="accordion-button collapsed" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#collapseOne"
-                                                aria-expanded="false" aria-controls="collapseOne">
-                                                Users Management
-                                            </button>
-                                        </h2>
-                                        <div id="collapseOne" class="accordion-collapse collapse"
-                                            aria-labelledby="headingOne" data-bs-parent="#accordionSidebar1">
-                                            <div class="accordion-body">
-                                                <ul class="nav flex-column">
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="{{ route('users.index') }}">Users</a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link"
-                                                            href="{{ route('users.registerRequests') }}">
-                                                            Register Requests
-                                                        </a>
-                                                    </li>
-                                                </ul>
+                                    <!-- users management accordion item -->
+                                    <div class="accordion" id="accordionSidebar1">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingOne">
+                                                <button class="accordion-button collapsed" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                                                    aria-expanded="false" aria-controls="collapseOne">
+                                                    Users Management
+                                                </button>
+                                            </h2>
+                                            <div id="collapseOne" class="accordion-collapse collapse"
+                                                aria-labelledby="headingOne" data-bs-parent="#accordionSidebar1">
+                                                <div class="accordion-body">
+                                                    <ul class="nav flex-column">
+                                                        <li class="nav-item">
+                                                            <a class="nav-link" href="{{ route('users.index') }}">Users</a>
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            <a class="nav-link"
+                                                                href="{{ route('users.registerRequests') }}">
+                                                                Register Requests
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- college management accordion item -->
-                                <div class="accordion" id="accordionSidebar2">
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header" id="headingTwo">
-                                            <button class="accordion-button collapsed" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#collapseTwo"
-                                                aria-expanded="false" aria-controls="collapseTwo">
-                                                College Management
-                                            </button>
-                                        </h2>
-                                        <div id="collapseTwo" class="accordion-collapse collapse"
-                                            aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar2">
-                                            <div class="accordion-body">
-                                                <ul class="nav flex-column">
-                                                    <li class="nav-item">
-                                                        <a class="nav-link"
-                                                            href="{{ route('headquarters.index') }}">Headquarters</a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link"
-                                                            href="{{ route('faculties.index') }}">Faculties</a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link"
-                                                            href="{{ route('departments.index') }}">Departments</a>
-                                                    </li>
-                                                </ul>
+                                    <!-- college management accordion item -->
+                                    <div class="accordion" id="accordionSidebar2">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingTwo">
+                                                <button class="accordion-button collapsed" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#collapseTwo"
+                                                    aria-expanded="false" aria-controls="collapseTwo">
+                                                    College Management
+                                                </button>
+                                            </h2>
+                                            <div id="collapseTwo" class="accordion-collapse collapse"
+                                                aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar2">
+                                                <div class="accordion-body">
+                                                    <ul class="nav flex-column">
+                                                        <li class="nav-item">
+                                                            <a class="nav-link"
+                                                                href="{{ route('headquarters.index') }}">Headquarters</a>
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            <a class="nav-link"
+                                                                href="{{ route('faculties.index') }}">Faculties</a>
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            <a class="nav-link"
+                                                                href="{{ route('departments.index') }}">Departments</a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- topics management accordion item -->
-                                <div class="accordion" id="accordionSidebar3">
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header" id="headingThree">
-                                            <button class="accordion-button collapsed" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#collapseThree"
-                                                aria-expanded="false" aria-controls="collapseThree">
-                                                Topics Management
-                                            </button>
-                                        </h2>
-                                        <div id="collapseThree" class="accordion-collapse collapse"
-                                            aria-labelledby="headingThree" data-bs-parent="#accordionSidebar3">
-                                            <div class="accordion-body">
-                                                <ul class="nav flex-column">
-                                                    <li class="nav-item">
-                                                        <a class="nav-link"
-                                                            href="{{ route('topics.index') }}">Topics</a>
-                                                    </li>
-                                                </ul>
+                                    <!-- topics management accordion item -->
+                                    <div class="accordion" id="accordionSidebar3">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingThree">
+                                                <button class="accordion-button collapsed" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#collapseThree"
+                                                    aria-expanded="false" aria-controls="collapseThree">
+                                                    Topics Management
+                                                </button>
+                                            </h2>
+                                            <div id="collapseThree" class="accordion-collapse collapse"
+                                                aria-labelledby="headingThree" data-bs-parent="#accordionSidebar3">
+                                                <div class="accordion-body">
+                                                    <ul class="nav flex-column">
+                                                        <li class="nav-item">
+                                                            <a class="nav-link"
+                                                                href="{{ route('topics.index') }}">Topics</a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                @endauth
 
             </div>
         </div>
 
         <!-- Main content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-top: -120px">
+        @auth
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-top: -120px">
+        @endauth
+        @guest
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        @endguest
             @yield('content')
         </main>
     </div>
