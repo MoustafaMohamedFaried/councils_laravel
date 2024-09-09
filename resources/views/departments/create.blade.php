@@ -8,15 +8,19 @@
         <input type="text" class="form-control" id="arName" name="ar_name" placeholder="Arabic Name">
         <label for="arName">Arabic Name</label>
     </div>
-    <div class="form-floating mb-3">
-        <select class="form-select" id="facultyId" name="faculty_id">
-            <option disabled selected value>Select Faculty</option>
-            @foreach ($faculties as $faculty)
-                <option value="{{ $faculty->id }}"> {{ $faculty->en_name }}</option>
-            @endforeach
-        </select>
-        <label for="facultyId">Faculty</label>
-    </div>
+    @if ($faculty_id)
+        <input type="hidden" name="faculty_id" value="{{ $faculty_id }}" id="createDepFromFaculty">
+    @else
+        <div class="form-floating mb-3">
+            <select class="form-select" id="facultyId" name="faculty_id">
+                <option disabled selected value>Select Faculty</option>
+                @foreach ($faculties as $faculty)
+                    <option value="{{ $faculty->id }}"> {{ $faculty->en_name }}</option>
+                @endforeach
+            </select>
+            <label for="facultyId">Faculty</label>
+        </div>
+    @endif
     <div class="form-floating mb-3">
         <button type="submit" class="btn btn-primary" id="submitCreateForm">Submit</button>
     </div>
@@ -122,7 +126,8 @@
                 if (response.errors) {
                     $.each(response.errors, function(field, messages) {
                         $.each(messages, function(index, message) {
-                            errorMessage += `<div class="container">${message}<br></div>`;
+                            errorMessage +=
+                                `<div class="container">${message}<br></div>`;
                         });
                     });
 

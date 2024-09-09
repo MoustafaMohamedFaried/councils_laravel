@@ -41,6 +41,7 @@ Route::resource('headquarters', HeadquarterController::class);
 
 Route::prefix('departments')->controller(DepartmentController::class)->group(function () {
     Route::get('/get-departments/{facultyId}', 'getDepartmentsByFaculty')->name('getDepartmentsByFaculty');
+    Route::get('/create/{faculty_id?}', [DepartmentController::class, 'create'])->name('departments.create');
 });
 Route::resource('departments', DepartmentController::class);
 

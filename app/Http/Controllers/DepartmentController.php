@@ -32,10 +32,10 @@ class DepartmentController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($faculty_id = null)
     {
         $faculties = Faculty::get();
-        return view('departments.create', compact('faculties'));
+        return view('departments.create', compact('faculties','faculty_id'));
     }
 
     /**

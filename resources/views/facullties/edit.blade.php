@@ -11,19 +11,20 @@
                 @csrf
                 <input type="hidden" id="facultyId" name="faculty_id" value="{{ $data['faculty']->id }}">
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="enName" name="en_name" value="{{ $data['faculty']->en_name }}"
-                        placeholder="English Name">
+                    <input type="text" class="form-control" id="enName" name="en_name"
+                        value="{{ $data['faculty']->en_name }}" placeholder="English Name">
                     <label for="enName">English Name</label>
                 </div>
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="arName" name="ar_name" value="{{ $data['faculty']->ar_name }}"
-                        placeholder="Arabic Name">
+                    <input type="text" class="form-control" id="arName" name="ar_name"
+                        value="{{ $data['faculty']->ar_name }}" placeholder="Arabic Name">
                     <label for="arName">Arabic Name</label>
                 </div>
                 <div class="form-floating mb-3">
                     <select class="form-select" id="headquarterId" name="headquarter_id">
                         <option disabled selected value>Open this select menu</option>
-                        <option value="{{ $data['faculty']->headquarter->id }}" selected> {{ $data['faculty']->headquarter->en_name }}
+                        <option value="{{ $data['faculty']->headquarter->id }}" selected>
+                            {{ $data['faculty']->headquarter->en_name }}
                         </option>
                         @foreach ($data['headquarters'] as $headquarter)
                             <option value="{{ $headquarter->id }}"> {{ $headquarter->en_name }}</option>
@@ -73,8 +74,8 @@
                     <div class="card-header row">
                         <h6 class="col-md-11">Departments</h6>
 
-                        <a class="col-md-1 btn btn-success btn-sm" id="createFacultyBtn" type="button" role="button"
-                            data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
+                        <a class="col-md-1 btn btn-success btn-sm" id="createDepartmentBtn" type="button" role="button"
+                            data-bs-toggle="modal" data-bs-target="#CreateModal">Create</a>
                     </div>
 
                     <div class="card-body">
@@ -193,6 +194,43 @@
             </div>
         </div>
 
+        <!-- Create department Modal -->
+        <div class="modal fade" id="CreateModal" tabindex="-1" aria-labelledby="CreateModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="CreateModalLabel">Create Department</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" id="closeCreateModal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="createFormContent">
+                        <!-- create Department form -->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete department Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <b> Are you sure you want to delete this record? </b>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
     </div>
 
 
@@ -340,6 +378,79 @@
                 error: function(xhr) {
                     console.log(xhr.responseText); // Log error to console for debugging
                 }
+            });
+        });
+
+        $("#createDepartmentBtn").click(function(e) {
+            var facultyId = document.getElementById('facultyId').value;
+            e.preventDefault();
+            $.ajax({
+                type: "GET",
+                url: `/departments/create/${facultyId}`,
+                success: function(response) {
+                    $("#createFormContent").html(response);
+                }
+            });
+        });
+
+        $(document).on('click', '#deleteDepartmentBtn', function() {
+            var departmentId = $(this).data('department-id'); // Get the department ID from the clicked button
+            // Show the confirmation modal
+            $('#deleteModal').modal('show');
+
+            // Handle the delete confirmation button click inside the modal
+            $('#confirmDeleteBtn').off('click').on('click', function() {
+                $.ajax({
+                    type: "DELETE",
+                    url: `/departments/${departmentId}`,
+                    success: function(response) {
+                        $('#deleteModal').modal('hide'); // Hide the modal after deletion
+
+                        $(`#department_${departmentId}`).remove();
+
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "3500",
+                            "preventDuplicates": true,
+                            "extendedTimeOut": "1000"
+                        };
+
+                        toastr.success(response.message);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("An error occurred: ", error);
+                        console.log(xhr.responseText);
+
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "3000",
+                            "preventDuplicates": true,
+                            "extendedTimeOut": "1000"
+                        };
+
+                        // Parse the response JSON
+                        var response = JSON.parse(xhr.responseText);
+
+                        // Concatenate all error messages into a single string
+                        var errorMessage = "";
+
+                        if (response.errors) {
+                            $.each(response.errors, function(field, messages) {
+                                $.each(messages, function(index, message) {
+                                    errorMessage +=
+                                        `<div class="container">${message}<br></div>`;
+                                });
+                            });
+
+                            // Display all error messages in a single toastr notification
+                            toastr.error(errorMessage);
+                        }
+                    }
+                });
             });
         });
     </script>
