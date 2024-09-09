@@ -163,4 +163,12 @@ class DepartmentController extends Controller
         // Return the departments as JSON
         return response()->json($departments);
     }
+    public function getDepartment($department_id)
+    {
+        $department = Department::findOrFail($department_id);
+
+        // Return the department as JSON
+        return response()->json($department);
+    }
+
 }

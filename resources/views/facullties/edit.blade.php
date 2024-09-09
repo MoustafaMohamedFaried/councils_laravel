@@ -230,7 +230,40 @@
             </div>
         </div>
 
-        
+        <!-- Edit department Modal -->
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="editModalLabel">Edit Department</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" id="closeEditModal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="editFormContent">
+                        <!-- edit Department form -->
+                        <form id="editDepartmentForm">
+                            @csrf
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="departmentEnName" name="en_name"
+                                    value="" placeholder="English Name">
+                                <label for="enName">English Name</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="departmentArName" name="ar_name"
+                                    value="" placeholder="Arabic Name">
+                                <label for="arName">Arabic Name</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <button type="submit" class="btn btn-primary w-100"
+                                    id="submitEditDepartmentForm">Update</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 
@@ -260,10 +293,10 @@
             }
         }
 
+        var facultyId = document.getElementById('facultyId').value;
+
         $("#submitEditForm").click(function(e) {
             e.preventDefault();
-
-            var facultyId = document.getElementById('facultyId').value;
 
             // Collect form data
             var formDataArray = $('#editForm').serializeArray();
@@ -367,7 +400,6 @@
 
         $('#formateCouncilBtn').click(function(e) {
             e.preventDefault();
-            var facultyId = document.getElementById('facultyId').value;
 
             $.ajax({
                 type: "GET",
@@ -382,7 +414,6 @@
         });
 
         $("#createDepartmentBtn").click(function(e) {
-            var facultyId = document.getElementById('facultyId').value;
             e.preventDefault();
             $.ajax({
                 type: "GET",
@@ -451,6 +482,132 @@
                         }
                     }
                 });
+            });
+        });
+
+        // When the "Edit" button is clicked fetch department data at form
+        $(document).on('click', '#editDepartmentBtn', function(e) {
+            e.preventDefault();
+
+            // Get the department ID from the data attribute
+            var departmentId = $(this).data('department-id');
+
+            // Send an AJAX request to fetch the department data
+            $.ajax({
+                type: "GET",
+                url: `/departments/get-department/${departmentId}`, // Make sure this route exists in your web.php
+                success: function(response) {
+                    // Fill the form fields with the department data
+                    $('#departmentEnName').val(response.en_name);
+                    $('#departmentArName').val(response.ar_name);
+                    // You can populate any other fields if needed
+                }
+            });
+        });
+
+        // saving update department
+        $("#submitEditDepartmentForm").click(function(e) {
+            e.preventDefault();
+
+            var departmentId = $('#editDepartmentBtn').data('department-id'); // Get the department ID
+
+            // Collect form data
+            var formDataArray = $('#editDepartmentForm').serializeArray();
+
+            // Convert form data array to an object
+            var formData = {};
+            for (var i = 0; i < formDataArray.length; i++) {
+                var item = formDataArray[i];
+                formData[item.name] = item.value;
+            }
+
+            $.ajax({
+                type: "PUT",
+                url: `/departments/${departmentId}`,
+                data: {
+                    department_id: departmentId,
+                    ar_name: formData.ar_name,
+                    en_name: formData.en_name,
+                    faculty_id: facultyId,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    $('#closeEditModal').click();
+
+                    toastr.options = {
+                        "closeButton": true,
+                        "progressBar": true,
+                        "positionClass": "toast-top-right",
+                        "timeOut": "3500",
+                        "preventDuplicates": true,
+                        "extendedTimeOut": "1000"
+                    };
+
+                    toastr.success(response.message);
+
+                    var departmentContainer = $('#departmentContainer');
+
+                    var departmentRow = $('#department_' + departmentId);
+
+                    var thElement = departmentRow.find('th[scope="row"]');
+
+                    var rowIndex = thElement.text();
+
+                    departmentRow.html(
+                        `
+                            <th class="text-center" scope="row">${rowIndex}</th>
+                            <td class="text-center">${response.data.department.code}</td>
+                            <td class="text-center">${response.data.department.en_name}</td>
+                            <td class="text-center">${response.data.department.ar_name}</td>
+                            <td class="text-center">
+                                <a class="btn btn-secondary btn-sm" role="button" id="viewDepartmentBtn"
+                                    data-department-id="${response.data.department.id}" data-bs-toggle="modal"
+                                    data-bs-target="#viewModal">View</a>
+
+                                <a class="btn btn-primary btn-sm" role="button"
+                                    id="editDepartmentBtn" data-department-id="${response.data.department.id}"
+                                    data-bs-toggle="modal" data-bs-target="#editModal">Edit</a>
+
+                                <a class="btn btn-danger btn-sm" role="button" id="deleteDepartmentBtn"
+                                    data-department-id="${response.data.department.id}" data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal">Delete</a>
+                            </td>
+                        `
+                    );
+
+                },
+
+                error: function(xhr, status, error) {
+                    console.error("An error occurred: ", error);
+                    console.log(xhr.responseText);
+
+                    toastr.options = {
+                        "closeButton": true,
+                        "progressBar": true,
+                        "positionClass": "toast-top-right",
+                        "timeOut": "3000",
+                        "preventDuplicates": true,
+                        "extendedTimeOut": "1000"
+                    };
+
+                    // Parse the response JSON
+                    var response = JSON.parse(xhr.responseText);
+
+                    // Concatenate all error messages into a single string
+                    var errorMessage = "";
+
+                    if (response.errors) {
+                        $.each(response.errors, function(field, messages) {
+                            $.each(messages, function(index, message) {
+                                errorMessage +=
+                                    `<div class="container">${message}<br></div>`;
+                            });
+                        });
+
+                        // Display all error messages in a single toastr notification
+                        toastr.error(errorMessage);
+                    }
+                }
             });
         });
     </script>
