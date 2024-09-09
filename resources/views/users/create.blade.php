@@ -117,7 +117,7 @@
 
             // Make an AJAX request to get faculties related to the selected headquarter
             $.ajax({
-                url: `/faculties/get-faculties/${headquarterId}`,
+                url: `/faculties/get_faculties_by_headquarter_id/${headquarterId}`,
                 type: 'GET',
                 success: function(faculties) {
                     // Clear the previous options

@@ -179,6 +179,10 @@
                                                             <a class="nav-link"
                                                                 href="{{ route('topics.index') }}">Topics</a>
                                                         </li>
+                                                        <li class="nav-item">
+                                                            <a class="nav-link"
+                                                                href="{{ route('agendas.index') }}">Agendas</a>
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>

@@ -149,4 +149,15 @@ class TopicController extends Controller
             ], 422);
         }
     }
+    public function getSupTopics($mainTopicId)
+    {
+        $supTopic = Topic::where('main_topic_id',$mainTopicId)->get();
+        return response()->json($supTopic);
+    }
+
+    public function getMainTopics($supTopicId)
+    {
+        $mainTopic = Topic::where('main_topic_id',$supTopicId)->get();
+        return response()->json($mainTopic);
+    }
 }
