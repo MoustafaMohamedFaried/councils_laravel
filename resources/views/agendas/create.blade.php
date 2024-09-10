@@ -142,7 +142,6 @@
             },
             success: function(response) {
                 $('#closeCreateModal').click();
-console.log(response);
 
                 toastr.options = {
                     "closeButton": true,

@@ -26,7 +26,7 @@ class TopicAgenda extends Model
         return $this->belongsTo(Topic::class, 'topic_id');
     }
 
-    public function departement(): BelongsTo
+    public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'department_id', 'id');
     }

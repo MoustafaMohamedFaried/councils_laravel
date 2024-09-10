@@ -156,29 +156,28 @@
             });
         });
 
-        // $(document).on('click', '#viewAgendaBtn', function() {
+        $(document).on('click', '#viewAgendaBtn', function() {
+            var agendaId = $(this).data('agenda-id'); // Get the faculty ID from the clicked button
+            $.ajax({
+                type: "GET",
+                url: `/agendas/${agendaId}`,
+                success: function(response) {
+                    $('#viewFormContent').html(response);
+                }
+            });
+        });
 
-        //     var agendaId = $(this).data('agenda-id'); // Get the faculty ID from the clicked button
-        //     $.ajax({
-        //         type: "GET",
-        //         url: `/agendas/${agendaId}`,
-        //         success: function(response) {
-        //             $('#viewFormContent').html(response);
-        //         }
-        //     });
-        // });
+        $(document).on('click', '#editAgendaBtn', function() {
 
-        // $(document).on('click', '#editAgendaBtn', function() {
-
-        //     var agendaId = $(this).data('agenda-id'); // Get the faculty ID from the clicked button
-        //     $.ajax({
-        //         type: "GET",
-        //         url: `/agendas/${agendaId}/edit`,
-        //         success: function(response) {
-        //             $('#editFormContent').html(response);
-        //         }
-        //     });
-        // });
+            var agendaId = $(this).data('agenda-id'); // Get the faculty ID from the clicked button
+            $.ajax({
+                type: "GET",
+                url: `/agendas/${agendaId}/edit`,
+                success: function(response) {
+                    $('#editFormContent').html(response);
+                }
+            });
+        });
 
         $(document).on('click', '#deleteAgendaBtn', function() {
             var agendaId = $(this).data('agenda-id'); // Get the agenda ID from the clicked button

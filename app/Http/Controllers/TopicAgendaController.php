@@ -37,7 +37,7 @@ class TopicAgendaController extends Controller
             'mainTopics' => $mainTopics,
         ];
 
-        return view('agendas.create',compact('data'));
+        return view('agendas.create', compact('data'));
     }
 
     /**
@@ -54,8 +54,8 @@ class TopicAgendaController extends Controller
             $latestOrder = intval($latestRecord->order ?? '0');
             $newOrder = $latestOrder + 1;
 
-            $departmentCode = Department::where('id',$request->department_id)->value('code');
-            $topicTitle = Topic::where('id',$request->topic_id)->value('title');
+            $departmentCode = Department::where('id', $request->department_id)->value('code');
+            $topicTitle = Topic::where('id', $request->topic_id)->value('title');
 
             $agendaName = $newOrder . '/ ' . $topicTitle . ' /' . $departmentCode;
 
@@ -88,7 +88,8 @@ class TopicAgendaController extends Controller
      */
     public function show($agenda_id)
     {
-        //
+        $agenda = TopicAgenda::findOrFail($agenda_id);
+        return view('agendas.view', compact('agenda'));
     }
 
     /**
@@ -96,7 +97,17 @@ class TopicAgendaController extends Controller
      */
     public function edit($agenda_id)
     {
-        //
+        $agenda = TopicAgenda::findOrFail($agenda_id);
+        $faculties = Faculty::get();
+        $mainTopics = Topic::whereNull('main_topic_id')->get();
+
+        $data = [
+            'agenda' => $agenda,
+            'faculties' => $faculties,
+            'mainTopics' => $mainTopics,
+        ];
+
+        return view('agendas.edit', compact('data'));
     }
 
     /**
@@ -104,7 +115,34 @@ class TopicAgendaController extends Controller
      */
     public function update(UpdateTopicAgendaRequest $request, $agenda_id)
     {
-        //
+        try {
+            $agenda = TopicAgenda::findOrFail($agenda_id);
+
+            $newTopicTitle = Topic::where('id',$request->topic_id)->value('title');
+            $newDepartmentCode = Department::where('id',$request->department_id)->value('code');
+
+            $agendaName = $agenda->order . '/ ' . $newTopicTitle . ' /' . $newDepartmentCode;
+
+            $agenda->update([
+                'created_by' => auth()->id(),
+                'department_id' => $request->department_id,
+                'topic_id' => $request->topic_id,
+                'name' => $agendaName
+            ]);
+
+            $data = [
+                'agenda' => $agenda,
+                'created_by' => $agenda->uploader->name,
+                'topic_title' => $newTopicTitle,
+            ];
+
+            return response()->json(['message' => 'Agenda updated successfully', 'data' => $data], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], 422);
+        }
     }
 
     /**

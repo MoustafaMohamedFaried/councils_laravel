@@ -11,18 +11,25 @@ class UpdateTopicAgendaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'department_id' => 'required',
+            'faculty_id' => 'required',
+            'main_topic' => 'required',
+            'topic_id' => 'required',
+        ];
+    }
+    public function messages(): array
+    {
+        return [
+            'department_id.required' => 'Department is required',
+            'faculty_id.required' => 'Faculty is required',
+            'main_topic.required' => 'Main topic is required',
+            'topic_id.required' => 'Sup topic is required',
         ];
     }
 }
