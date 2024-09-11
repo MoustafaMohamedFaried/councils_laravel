@@ -24,6 +24,7 @@
                                     <th scope="col">#</th>
                                     <th scope="col">Name</th>
                                     <th scope="col">Email</th>
+                                    <th scope="col">Position</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Actions</th>
                                 </tr>
@@ -36,6 +37,7 @@
                                         <th class="text-center" scope="row">{{ $x }}</th>
                                         <td class="text-center">{{ $user->name }}</td>
                                         <td class="text-center">{{ $user->email }}</td>
+                                        <td class="text-center">{{ $user->position->ar_name ?? "بدون منصب" }}</td>
                                         <td class="text-center">
                                             @if ($user->is_active == 1)
                                                 <span class="badge rounded-pill text-bg-success">Active</span>

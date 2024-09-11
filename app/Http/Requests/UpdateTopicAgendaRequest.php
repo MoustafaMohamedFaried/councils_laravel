@@ -21,6 +21,7 @@ class UpdateTopicAgendaRequest extends FormRequest
             'faculty_id' => 'required',
             'main_topic' => 'required',
             'topic_id' => 'required',
+            'status' => 'required',
         ];
     }
     public function messages(): array
@@ -30,6 +31,7 @@ class UpdateTopicAgendaRequest extends FormRequest
             'faculty_id.required' => 'Faculty is required',
             'main_topic.required' => 'Main topic is required',
             'topic_id.required' => 'Sup topic is required',
+            'status.required' => 'Status is required',
         ];
     }
 }

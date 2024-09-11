@@ -15,6 +15,13 @@ use Illuminate\Database\QueryException;
 
 class TopicAgendaController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('is_active');
+        // $this->middleware('is_super_or_system_admin')->except('index', 'show', 'getFacultiesByHeadquarter');
+        $this->middleware('ajax_only')->except('index');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -124,9 +131,9 @@ class TopicAgendaController extends Controller
             $agendaName = $agenda->order . '/ ' . $newTopicTitle . ' /' . $newDepartmentCode;
 
             $agenda->update([
-                'created_by' => auth()->id(),
                 'department_id' => $request->department_id,
                 'topic_id' => $request->topic_id,
+                'status' => $request->status,
                 'name' => $agendaName
             ]);
 

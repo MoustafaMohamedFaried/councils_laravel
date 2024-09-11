@@ -7,7 +7,7 @@
         <select class="form-select" id="facultyId" name="faculty_id">
             <option disabled selected value>Select Faculty</option>
             @foreach ($data['faculties'] as $faculty)
-                <option @if ($data['agenda']->department->faculty_id == $faculty->id) value="{{ $faculty->id }}" selected  @endif
+                <option @if ($data['agenda']->department->faculty_id == $faculty->id) value="{{ $faculty->id }}" selected @endif
                     value="{{ $faculty->id }}"> {{ $faculty->ar_name }}</option>
             @endforeach
         </select>
@@ -38,6 +38,20 @@
         </select>
         <label for="supTopic">Sup Topic</label>
     </div>
+
+    {{-- dispaly for just user with position head of department --}}
+    @if (auth()->user()->position_id == 3)
+        <div class="form-floating mb-3">
+            <select class="form-select" id="Status" name="status">
+                <option disabled selected value>Pending</option>
+                <option value="1">Accepted</option>
+                <option value="2">Rejected</option>
+            </select>
+            <label for="Status">Status</label>
+        </div>
+    @else
+        <input type="hidden" value="0" name="status"> {{-- let status 0 (pending) --}}
+    @endif
 
     <div class="form-floating mb-3">
         <button type="submit" class="btn btn-primary" id="submitEditForm">Submit</button>
@@ -194,6 +208,7 @@
                 topic_id: formData.topic_id,
                 department_id: formData.department_id,
                 faculty_id: formData.faculty_id,
+                status: formData.status,
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
@@ -218,29 +233,33 @@
 
                 var rowIndex = thElement.text();
 
-                topicRow.html(
-                    `
-                        <th class="text-center" scope="row">${rowIndex}</th>
-                        <td class="text-center">${response.data.agenda.code}</td>
-                        <td class="text-center">${response.data.agenda.order}</td>
-                        <td class="text-center">${response.data.topic_title}</td>
-                        <td class="text-center">${response.data.created_by}</td>
+                // Assuming you pass the necessary data from the backend to JavaScript
+                var currentUserId = {{ auth()->id() }};
+                var currentPositionId = {{ auth()->user()->position_id }};
+                var agendaStatus = response.data.agenda.status;
+                var agendaCreatedBy = response.data.agenda.created_by;
 
-                        <td class="text-center">
-                            <a class="btn btn-secondary btn-sm" role="button" id="viewAgendaBtn"
+                topicRow.html(`
+                    <th class="text-center" scope="row">${rowIndex}</th>
+                    <td class="text-center">${response.data.agenda.code}</td>
+                    <td class="text-center">${response.data.agenda.order}</td>
+                    <td class="text-center">${response.data.topic_title}</td>
+                    <td class="text-center">${response.data.created_by}</td>
+                    <td class="text-center">
+                        <a class="btn btn-secondary btn-sm" role="button" id="viewAgendaBtn"
+                            data-agenda-id="${response.data.agenda.id}" data-bs-toggle="modal"
+                            data-bs-target="#viewModal">View</a>
+                        ${agendaStatus == 0 && (currentUserId == agendaCreatedBy || currentPositionId == 3) ? `
+                            <a class="btn btn-primary btn-sm" role="button" id="editAgendaBtn"
                                 data-agenda-id="${response.data.agenda.id}" data-bs-toggle="modal"
-                                data-bs-target="#viewModal">View</a>
-
-                            <a class="btn btn-primary btn-sm" role="button"
-                                id="editAgendaBtn" data-agenda-id="${response.data.agenda.id}"
-                                data-bs-toggle="modal" data-bs-target="#editModal">Edit</a>
-
+                                data-bs-target="#editModal">Edit</a>
                             <a class="btn btn-danger btn-sm" role="button" id="deleteAgendaBtn"
                                 data-agenda-id="${response.data.agenda.id}" data-bs-toggle="modal"
                                 data-bs-target="#deleteModal">Delete</a>
-                        </td>
-                    `
-                );
+                        ` : ''}
+                    </td>
+                `);
+
 
             },
 

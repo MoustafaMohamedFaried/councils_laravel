@@ -10,6 +10,13 @@ use Illuminate\Database\QueryException;
 
 class TopicController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('is_active');
+        // $this->middleware('is_super_or_system_admin')->except('index', 'show', 'getFacultiesByHeadquarter');
+        $this->middleware('ajax_only')->except('index');
+    }
     /**
      * Display a listing of the resource.
      */

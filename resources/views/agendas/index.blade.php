@@ -11,8 +11,11 @@
             <div class="card">
                 <div class="card-header row">
                     <h6 class="col-md-11">Agendas</h6>
-                    <a class="col-md-1 btn btn-success btn-sm" id="createAgendaBtn" type="button" role="button"
-                        data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
+                    {{-- don't display if user position is head of department or dean of collage --}}
+                    @if (!(auth()->user()->position_id == 3 || auth()->user()->position_id == 5))
+                        <a class="col-md-1 btn btn-success btn-sm" id="createAgendaBtn" type="button" role="button"
+                            data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
+                    @endif
                 </div>
 
                 <div class="card-body">
@@ -44,13 +47,18 @@
                                                 data-agenda-id="{{ $agenda->id }}" data-bs-toggle="modal"
                                                 data-bs-target="#viewModal">View</a>
 
-                                            <a class="btn btn-primary btn-sm" role="button" id="editAgendaBtn"
-                                                data-agenda-id="{{ $agenda->id }}" data-bs-toggle="modal"
-                                                data-bs-target="#editModal">Edit</a>
+                                            {{-- display just when stauts is pending --}}
+                                            @if ($agenda->status == 0)
+                                                @if (auth()->id() == $agenda->created_by || auth()->user()->position_id == 3)
+                                                    <a class="btn btn-primary btn-sm" role="button" id="editAgendaBtn"
+                                                        data-agenda-id="{{ $agenda->id }}" data-bs-toggle="modal"
+                                                        data-bs-target="#editModal">Edit</a>
 
-                                            <a class="btn btn-danger btn-sm" role="button" id="deleteAgendaBtn"
-                                                data-agenda-id="{{ $agenda->id }}" data-bs-toggle="modal"
-                                                data-bs-target="#deleteModal">Delete</a>
+                                                    <a class="btn btn-danger btn-sm" role="button" id="deleteAgendaBtn"
+                                                        data-agenda-id="{{ $agenda->id }}" data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal">Delete</a>
+                                                @endif
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
