@@ -13,10 +13,10 @@ class FacultySessionController extends Controller
      */
     public function index()
     {
-        $sessions = FacultySession::paginate(10);
-        $data = [
-            'sessions' => $sessions
-        ];
+        // $sessions = FacultySession::paginate(10);
+        // $data = [
+        //     'sessions' => $sessions
+        // ];
         return view('sessions.faculty.index');
         // return view('sessions.faculty.index',compact('data'));
     }
