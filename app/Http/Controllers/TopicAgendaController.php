@@ -20,7 +20,7 @@ class TopicAgendaController extends Controller
         $this->middleware('auth');
         $this->middleware('is_active');
         // $this->middleware('is_super_or_system_admin')->except('index', 'show', 'getFacultiesByHeadquarter');
-        $this->middleware('ajax_only')->except('index');
+        $this->middleware('ajax_only')->except('index','getAgendasByDepartment');
     }
     /**
      * Display a listing of the resource.
@@ -125,8 +125,8 @@ class TopicAgendaController extends Controller
         try {
             $agenda = TopicAgenda::findOrFail($agenda_id);
 
-            $newTopicTitle = Topic::where('id',$request->topic_id)->value('title');
-            $newDepartmentCode = Department::where('id',$request->department_id)->value('code');
+            $newTopicTitle = Topic::where('id', $request->topic_id)->value('title');
+            $newDepartmentCode = Department::where('id', $request->department_id)->value('code');
 
             $agendaName = $agenda->order . '/ ' . $newTopicTitle . ' /' . $newDepartmentCode;
 
@@ -182,4 +182,15 @@ class TopicAgendaController extends Controller
         }
     }
 
+    public function getAgendasByDepartment($department_id)
+    {
+        $agendasData = TopicAgenda::where('topic_agendas.department_id', $department_id)
+            ->join('departments', 'departments.id', '=', 'topic_agendas.department_id')
+            ->select('topic_agendas.id as agenda_id', 'topic_agendas.name as agenda_name');
+
+        // array like [agenda_id => agenda_name]
+        $agendas = array_combine($agendasData->pluck('agenda_id')->toArray(), $agendasData->pluck('agenda_name')->toArray());
+
+        return response()->json($agendas);
+    }
 }

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', function () {
-    if(auth()->user() && auth()->user()->is_active == 1)
+    if (auth()->user() && auth()->user()->is_active == 1)
         return view('home');
     else
         return view('auth.login');
@@ -69,9 +69,15 @@ Route::prefix('topics')->controller(TopicController::class)->group(function () {
 Route::resource('topics', TopicController::class);
 
 
+Route::prefix('agendas')->controller(TopicAgendaController::class)->group(function () {
+    Route::get('/getAgendasByDepartment/{department_id}', 'getAgendasByDepartment')->name('agendas.getAgendasByDepartment');
+});
 Route::resource('agendas', TopicAgendaController::class);
 
 
+Route::prefix('sessions-departments')->controller(SessionDepartmentController::class)->group(function () {
+    Route::get('/getInvitationFromDepartmentId/{department_id}', 'getInvitationFromDepartmentId')->name('sessions-departments.getInvitationFromDepartmentId');
+});
 Route::resource('sessions-departments', SessionDepartmentController::class);
 
 
