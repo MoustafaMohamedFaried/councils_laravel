@@ -4,7 +4,9 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DepartmentCouncilController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\FacultyCouncilController;
+use App\Http\Controllers\FacultySessionController;
 use App\Http\Controllers\HeadquarterController;
+use App\Http\Controllers\SessionDepartmentController;
 use App\Http\Controllers\TopicAgendaController;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\UserController;
@@ -68,3 +70,9 @@ Route::resource('topics', TopicController::class);
 
 
 Route::resource('agendas', TopicAgendaController::class);
+
+
+Route::resource('sessions-departments', SessionDepartmentController::class);
+
+
+Route::resource('sessions-faculties', FacultySessionController::class);

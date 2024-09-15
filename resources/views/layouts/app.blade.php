@@ -88,126 +88,126 @@
             </div>
         </nav>
 
-        {{-- side bar section --}}
-        <div class="container-fluid">
-            <div class="row">
-                <!-- Sidebar -->
-                @auth
-                    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-                        <div class="position-sticky">
-                            <ul class="nav flex-column">
-
-                                <!-- Accordion Section -->
-                                <li class="nav-item">
-
-                                    <!-- users management accordion item -->
-                                    <div class="accordion" id="accordionSidebar1">
-                                        <div class="accordion-item">
-                                            <h2 class="accordion-header" id="headingOne">
-                                                <button class="accordion-button collapsed" type="button"
-                                                    data-bs-toggle="collapse" data-bs-target="#collapseOne"
-                                                    aria-expanded="false" aria-controls="collapseOne">
-                                                    Users Management
-                                                </button>
-                                            </h2>
-                                            <div id="collapseOne" class="accordion-collapse collapse"
-                                                aria-labelledby="headingOne" data-bs-parent="#accordionSidebar1">
-                                                <div class="accordion-body">
-                                                    <ul class="nav flex-column">
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" href="{{ route('users.index') }}">Users</a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link"
-                                                                href="{{ route('users.registerRequests') }}">
-                                                                Register Requests
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- college management accordion item -->
-                                    <div class="accordion" id="accordionSidebar2">
-                                        <div class="accordion-item">
-                                            <h2 class="accordion-header" id="headingTwo">
-                                                <button class="accordion-button collapsed" type="button"
-                                                    data-bs-toggle="collapse" data-bs-target="#collapseTwo"
-                                                    aria-expanded="false" aria-controls="collapseTwo">
-                                                    College Management
-                                                </button>
-                                            </h2>
-                                            <div id="collapseTwo" class="accordion-collapse collapse"
-                                                aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar2">
-                                                <div class="accordion-body">
-                                                    <ul class="nav flex-column">
-                                                        <li class="nav-item">
-                                                            <a class="nav-link"
-                                                                href="{{ route('headquarters.index') }}">Headquarters</a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link"
-                                                                href="{{ route('faculties.index') }}">Faculties</a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link"
-                                                                href="{{ route('departments.index') }}">Departments</a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- topics management accordion item -->
-                                    <div class="accordion" id="accordionSidebar3">
-                                        <div class="accordion-item">
-                                            <h2 class="accordion-header" id="headingThree">
-                                                <button class="accordion-button collapsed" type="button"
-                                                    data-bs-toggle="collapse" data-bs-target="#collapseThree"
-                                                    aria-expanded="false" aria-controls="collapseThree">
-                                                    Topics Management
-                                                </button>
-                                            </h2>
-                                            <div id="collapseThree" class="accordion-collapse collapse"
-                                                aria-labelledby="headingThree" data-bs-parent="#accordionSidebar3">
-                                                <div class="accordion-body">
-                                                    <ul class="nav flex-column">
-                                                        <li class="nav-item">
-                                                            <a class="nav-link"
-                                                                href="{{ route('topics.index') }}">Topics</a>
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            <a class="nav-link"
-                                                                href="{{ route('agendas.index') }}">Agendas</a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </li>
-                            </ul>
-                        </div>
-                    </nav>
-                @endauth
-
-            </div>
-        </div>
-
-        <!-- Main content -->
         @auth
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-top: -120px">
+            {{-- sidebar & content --}}
+            <nav class="nav d-flex row">
+
+                <!-- Sidebar content -->
+                <ul class="nav flex-column col-md-2 mt-2" style="display: inline">
+
+                    <!-- Dropdown Menu Users Management -->
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-lg btn-secondary m-2 w-100" type="button"
+                            onclick="toggleVisibility('usersManagement')">
+                            Users Management
+                        </button>
+
+                        <div class="dropdown-menu text-body-secondary text-center" id="usersManagement"
+                            style="display: none; width: 16rem;">
+
+                            <a type="button" href="{{ route('users.index') }}" class="btn btn-light w-100">Users</a>
+                            <a type="button" href="{{ route('users.registerRequests') }}"
+                                class="btn btn-light w-100">Register Requests</a>
+                        </div>
+                    </li>
+
+                    <!-- Dropdown Menu College Management -->
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-lg btn-secondary m-2 w-100" type="button"
+                            onclick="toggleVisibility('collegeManagement')">
+                            College Management
+                        </button>
+
+                        <div class="dropdown-menu text-body-secondary text-center" id="collegeManagement"
+                            style="display: none; width: 16rem;">
+                            <a type="button" href="{{ route('headquarters.index') }}"
+                                class="btn btn-light w-100">Headquarters</a>
+                            <a type="button" href="{{ route('faculties.index') }}"
+                                class="btn btn-light w-100">Faculties</a>
+                            <a type="button" href="{{ route('departments.index') }}"
+                                class="btn btn-light w-100">Departments</a>
+                        </div>
+
+                    </li>
+
+                    <!-- Dropdown Menu Topics Management -->
+                    <li class="nav-item dropdown">
+
+                        <button class="btn btn-lg btn-secondary m-2 w-100" type="button"
+                            onclick="toggleVisibility('topicsManagement')">
+                            Topics Management
+                        </button>
+
+                        <div class="dropdown-menu text-body-secondary text-center" id="topicsManagement"
+                            style="display: none; width: 16rem;">
+
+                            <a type="button" href="{{ route('topics.index') }}" class="btn btn-light w-100">Topics</a>
+                            <a type="button" href="{{ route('agendas.index') }}" class="btn btn-light w-100">Agendas</a>
+
+                        </div>
+
+                    </li>
+
+                    <!-- Dropdown Menu Sessions Management -->
+                    <li class="nav-item dropdown">
+
+                        <button class="btn btn-lg btn-secondary m-2 w-100" type="button"
+                            onclick="toggleVisibility('sessionsManagement')">
+                            Sessions Management
+                        </button>
+
+                        <div class="dropdown-menu text-body-secondary text-center" id="sessionsManagement"
+                            style="display: none; width: 16rem;">
+
+                            <a type="button" href="{{ route('sessions-departments.index') }}" class="btn btn-light w-100">Department
+                                Sessions</a>
+                            <a type="button" href="#" class="btn btn-light w-100">College
+                                Council</a>
+                            <a type="button" href="{{ route('sessions-faculties.index') }}" class="btn btn-light w-100">Faculty
+                                Sessions</a>
+
+                        </div>
+
+                    </li>
+
+                </ul>
+
+                <!-- Main content -->
+                <main class="p-5 col-md-10">
+                    @yield('content')
+                </main>
+            </nav>
         @endauth
+
+        <!-- Main content if guest-->
         @guest
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <main class="p-5">
+                @yield('content')
+            </main>
         @endguest
-            @yield('content')
-        </main>
+
     </div>
+
+    <script>
+        function toggleVisibility(sectionId) {
+            // Select the target div
+            var section = document.getElementById(sectionId);
+
+            // Toggle display property
+            if (section.style.display === 'none' || section.style.display === '') {
+                // Hide all sections first
+                document.querySelectorAll('.dropdown-menu').forEach(function(div) {
+                    div.style.display = 'none';
+                });
+
+                // Then show the clicked section
+                section.style.display = 'block';
+            } else {
+                // Hide the section if it's already visible
+                section.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 
 </html>
