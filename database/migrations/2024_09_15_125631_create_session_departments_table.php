@@ -25,8 +25,8 @@ return new class extends Migration
             $table->dateTime('start_time');
             $table->integer('total_hours');
             $table->dateTime('schedual_end_time');
-            $table->dateTime('actual_start_time');
-            $table->dateTime('actual_end_time');
+            $table->dateTime('actual_start_time')->nullable();
+            $table->dateTime('actual_end_time')->nullable();
             $table->timestamps();
         });
     }
