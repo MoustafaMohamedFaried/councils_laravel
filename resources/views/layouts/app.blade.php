@@ -22,6 +22,15 @@
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script> --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Bootstrap 4 Select2 Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css"
+        rel="stylesheet" />
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 
 </head>
@@ -142,7 +151,8 @@
                             style="display: none; width: 16rem;">
 
                             <a type="button" href="{{ route('topics.index') }}" class="btn btn-light w-100">Topics</a>
-                            <a type="button" href="{{ route('agendas.index') }}" class="btn btn-light w-100">Agendas</a>
+                            <a type="button" href="{{ route('agendas.index') }}"
+                                class="btn btn-light w-100">Agendas</a>
 
                         </div>
 
@@ -159,11 +169,13 @@
                         <div class="dropdown-menu text-body-secondary text-center" id="sessionsManagement"
                             style="display: none; width: 16rem;">
 
-                            <a type="button" href="{{ route('sessions-departments.index') }}" class="btn btn-light w-100">Department
+                            <a type="button" href="{{ route('sessions-departments.index') }}"
+                                class="btn btn-light w-100">Department
                                 Sessions</a>
                             <a type="button" href="#" class="btn btn-light w-100">College
                                 Council</a>
-                            <a type="button" href="{{ route('sessions-faculties.index') }}" class="btn btn-light w-100">Faculty
+                            <a type="button" href="{{ route('sessions-faculties.index') }}"
+                                class="btn btn-light w-100">Faculty
                                 Sessions</a>
 
                         </div>

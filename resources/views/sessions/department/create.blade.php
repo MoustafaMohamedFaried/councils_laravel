@@ -20,11 +20,11 @@
                         </a>
                         <a class="nav-link tab-pills">
                             <div class="step-circle">3</div>
-                            Company Details
+                            Date & Place
                         </a>
                         <a class="nav-link tab-pills">
                             <div class="step-circle">4</div>
-                            Finish
+                            Decision
                         </a>
                     </nav>
                 </div>
@@ -51,11 +51,8 @@
                         {{-- topic secion --}}
                         <div class="mb-3">
                             <label for="Agendas" class="form-label">Topics</label>
-                            <select class="form-select" id="Agendas" name="agenda_id">
-                                <option disabled selected vlaue>Choose topics</option>
-                                {{-- @foreach ($data['agendas'] as $agenda)
-                                    <option value="{{ $agenda->id }}">{{ $agenda->name }}</option>
-                                @endforeach --}}
+                            <select class="form-select select2" id="Agendas" name="agenda_id[]" multiple="multiple">
+                                {{-- options of agendas --}}
                             </select>
                         </div>
                     </div>
@@ -65,26 +62,38 @@
                         {{-- invitations secion --}}
                         <div class="mb-3">
                             <label for="Invitations" class="form-label">Invitations</label>
-                            <select class="form-select" id="Invitations" name="user_id">
-                                <option disabled selected vlaue>Choose users</option>
+                            <select class="form-select select2" id="Invitations" name="user_id[]" multiple="multiple">
+                                {{-- options of users --}}
                             </select>
                         </div>
                     </div>
 
+                    {{-- step 3 --}}
                     <div class="tab d-none">
                         <div class="mb-3">
-                            <label for="company_name" class="form-label">Company Name</label>
-                            <input type="text" class="form-control" name="company_name" id="company_name"
-                                placeholder="Please enter company name">
+                            <label for="Start_Time" class="form-label">Start Time</label>
+                            <input type="datetime-local" class="form-control" name="start_time" id="Start_Time">
                         </div>
                         <div class="mb-3">
-                            <label for="company_address" class="form-label">Company Address</label>
-                            <textarea class="form-control" name="company_address" id="company_address" placeholder="Please enter company address"></textarea>
+                            <label for="Total_Hours" class="form-label">Total Hours</label>
+                            <input class="form-control" type="number" name="total_hours" id="Total_Hours">
+                        </div>
+                        <div class="mb-3">
+                            <label for="Place" class="form-label">Place</label>
+                            <input class="form-control" type="text" name="place" id="Place">
                         </div>
                     </div>
 
+                    {{-- step 4 --}}
                     <div class="tab d-none">
-                        <p>All Set! Please submit to continue. Thank you</p>
+                        <div class="mb-3">
+                            <label for="Decision" class="form-label">Decision By</label>
+                            <select class="form-select" id="Decision" name="decision_by">
+                                <option disabled selected value>Select option</option>
+                                <option value="0">Members</option>
+                                <option value="1">Secretary of the Department Council</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="card-footer text-end">
@@ -171,6 +180,45 @@
             loadFormData(current);
         }
 
+        // Reset the form fields on page load
+        $(document).ready(function() {
+            $('#CreateForm')[0].reset(); // This resets all fields, including text inputs
+
+            // Clear Select2 selections
+            $('#Agendas').val(null).trigger('change'); // Clear selections in Agendas
+            $('#Invitations').val(null).trigger('change'); // Clear selections in Invitations
+
+            // Manually clear specific text inputs (if needed)
+            $('#Start_Time').val(''); // Clear datetime-local input
+            $('#Total_Hours').val(''); // Clear number input
+            $('#Place').val(''); // Clear text input
+            $('#Decision').val(''); // Clear text input
+        });
+
+        // Function to initialize Select2 multi-select and hide selected options
+        function intializeMuiltiSelect(inputId, placeholder) {
+            $('#' + inputId).select2({
+                placeholder: placeholder, // Adjust the placeholder as needed
+                templateResult: function(data) {
+                    // Hide selected options in the dropdown
+                    if ($.inArray(data.id, $('#' + inputId).val()) !== -1) {
+                        return null; // Return null to hide the option
+                    }
+                    return data.text; // Return the text for non-selected options
+                }
+            });
+
+            // Listen to select2:select and select2:unselect to refresh the dropdown
+            $('#' + inputId).on('select2:select select2:unselect', function() {
+                $(this).trigger('change.select2'); // Refresh the dropdown
+            });
+        }
+
+        // Initialize both multi-select elements
+        $(document).ready(function() {
+            intializeMuiltiSelect('Agendas', 'select topics'); // Initialize for Agendas
+            intializeMuiltiSelect('Invitations', 'select invitations'); // Initialize for Invitations
+        });
 
 
         var DepartmentsId = document.getElementById('Departments').value;
@@ -182,8 +230,7 @@
                 type: 'GET',
                 success: function(invitations) {
                     // Clear the previous options
-                    $('#Invitations').empty().append(
-                        '<option disabled selected vlaue>Choose users</option>');
+                    $('#Invitations').empty();
 
                     // Populate the invitations select field with new options
                     $.each(invitations, function(user_id, user_name) {
@@ -203,8 +250,7 @@
                 type: 'GET',
                 success: function(agendas) {
                     // Clear the previous options
-                    $('#Agendas').empty().append(
-                        '<option disabled selected vlaue>Choose topics</option>');
+                    $('#Agendas').empty();
 
                     // Populate the agendas select field with new options
                     $.each(agendas, function(agenda_id, agenda_name) {
@@ -230,8 +276,7 @@
                     type: 'GET',
                     success: function(invitations) {
                         // Clear previous options
-                        $('#Invitations').empty().append(
-                            '<option disabled selected value>Choose users</option>');
+                        $('#Invitations').empty();
 
                         // Populate invitations select field with new options
                         $.each(invitations, function(user_id, user_name) {
@@ -251,8 +296,7 @@
                     type: 'GET',
                     success: function(agendas) {
                         // Clear the previous options
-                        $('#Agendas').empty().append(
-                            '<option disabled selected vlaue>Choose topics</option>');
+                        $('#Agendas').empty();
 
                         // Populate the agendas select field with new options
                         $.each(agendas, function(agenda_id, agenda_name) {
@@ -271,43 +315,36 @@
 
         $("#submitCreateForm").click(function(e) {
             e.preventDefault();
-            // Collect form data
-            var formDataArray = $('#CreateForm').serializeArray();
-
-            // Convert form data array to an object
-            var formData = {};
-            for (var i = 0; i < formDataArray.length; i++) {
-                var item = formDataArray[i];
-                formData[item.name] = item.value;
-            }
 
             $.ajax({
                 type: "POST",
-                url: "{{ route('sessions-departments.store') }}",
+                url: `{{ route('sessions-departments.store') }}`,
                 data: {
-                    department_id: formData.department_id,
-                    place: formData.place,
-                    start_time: formData.start_time,
-                    decision_by: formData.decision_by,
-                    total_hours: formData.total_hours,
-                    agenda_id: formData.agenda_id,
-                    user_id: formData.user_id,
+                    department_id: $('#Departments').val(),
+                    place: $('#Place').val(),
+                    total_hours: $('#Total_Hours').val(),
+                    start_time: $('#Start_Time').val(),
+                    decision_by: $('#Decision').val(),
+                    agenda_id: $('#Agendas').val(), // Since it's a multiselect, it will return an array
+                    user_id: $('#Invitations').val(),
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    $('#closeCreateModal').click();
-
                     toastr.options = {
                         "closeButton": true,
                         "progressBar": true,
                         "positionClass": "toast-top-right",
-                        "timeOut": "3500",
+                        "timeOut": "1500",
                         "preventDuplicates": true,
                         "extendedTimeOut": "1000"
                     };
 
                     toastr.success(response.message);
 
+                    // Redirect after a short delay to allow the toastr to be visible
+                    setTimeout(function() {
+                        window.location.href = "{{ route('sessions-departments.index') }}";
+                    }, 1500); // Delay in milliseconds (match this with the timeOut value)
                 },
 
                 error: function(xhr, status, error) {
