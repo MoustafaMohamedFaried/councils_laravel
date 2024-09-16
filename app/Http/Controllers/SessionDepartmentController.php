@@ -141,7 +141,24 @@ class SessionDepartmentController extends Controller
      */
     public function show($session_id)
     {
-        //
+        $session = SessionDepartment::findOrFail($session_id);
+
+        $sessionUsers = SessionDepartmentUser::where('session_department_user.session_id', $session_id)
+            ->join('users', 'users.id', '=', 'session_department_user.user_id')
+            ->select('users.name as user_name');
+
+        $sessionTopics = SessionDepartmentTopic::where('session_department_topics.session_id', $session_id)
+            ->join('topic_agendas', 'topic_agendas.id', '=', 'session_department_topics.agenda_id')
+            ->join('topics', 'topics.id', '=', 'topic_agendas.topic_id')
+            ->select('topics.title as topic_title');
+
+        $data = [
+            'session' => $session,
+            'invitations' => $sessionUsers->pluck('user_name'),
+            'topics' => $sessionTopics->pluck('topic_title')
+        ];
+
+        return view('sessions.department.view', compact('data'));
     }
 
     /**

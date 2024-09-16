@@ -13,7 +13,8 @@
                     <h6 class="col-md-11">sessions</h6>
                     {{-- if user position is secretary of department council --}}
                     @if (auth()->user()->position_id == 2)
-                        <a class="col-md-1 btn btn-success btn-sm" href="{{ route('sessions-departments.create') }}" type="button">Create</a>
+                        <a class="col-md-1 btn btn-success btn-sm" href="{{ route('sessions-departments.create') }}"
+                            type="button">Create</a>
                     @endif
                 </div>
 
@@ -24,10 +25,10 @@
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Code</th>
-                                    <th scope="col">Type</th>
-                                    {{-- <th scope="col">order</th> --}}
-                                    {{-- <th scope="col">Main session</th> --}}
-                                    <th scope="col">Title</th>
+                                    <th scope="col">Order</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Created By</th>
+                                    <th scope="col">Responsible</th>
                                     <th scope="col">Actions</th>
                                 </tr>
                             </thead>
@@ -38,6 +39,7 @@
                                     <tr id="session_{{ $session->id }}">
                                         <th class="text-center" scope="row">{{ $x }}</th>
                                         <td class="text-center">{{ $session->code }}</td>
+                                        <td class="text-center">{{ $session->order }}</td>
                                         <td class="text-center">
                                             @if ($session->status == 0)
                                                 <span class="badge rounded-pill text-bg-primary">Pending</span>
@@ -47,22 +49,20 @@
                                                 <span class="badge rounded-pill text-bg-danger">Rejected</span>
                                             @endif
                                         </td>
-                                        {{-- <td class="text-center">{{ $session->order }}</td> --}}
-                                        {{-- <td class="text-center">{{ $session->mainsession->title ?? '_______' }}</td> --}}
-                                        <td class="text-center">{{ $session->title }}</td>
+                                        <td class="text-center">{{ $session->createdBy->name }}</td>
+                                        <td class="text-center">{{ $session->responsible->name }}</td>
                                         <td class="text-center">
-                                            <a class="btn btn-secondary btn-sm" role="button" id="viewsessionBtn"
-                                                data-session-id="{{ $session->id }}" data-bs-toggle="modal"
-                                                data-bs-target="#viewModal">View</a>
-                                            @if (auth()->user()->hasRole('Super Admin'))
-                                                <a class="btn btn-primary btn-sm" role="button" id="editsessionBtn"
-                                                    data-session-id="{{ $session->id }}" data-bs-toggle="modal"
-                                                    data-bs-target="#editModal">Edit</a>
+                                            <a class="btn btn-secondary btn-sm"
+                                                href="{{ route('sessions-departments.show', $session->id) }}"
+                                                id="viewsessionBtn">View</a>
 
-                                                <a class="btn btn-danger btn-sm" role="button" id="deletesessionBtn"
-                                                    data-session-id="{{ $session->id }}" data-bs-toggle="modal"
-                                                    data-bs-target="#deleteModal">Delete</a>
-                                            @endif
+                                            <a class="btn btn-primary btn-sm"
+                                                href="{{ route('sessions-departments.edit', $session->id) }}"
+                                                id="editsessionBtn">Edit</a>
+
+                                            <a class="btn btn-danger btn-sm" role="button" id="deletesessionBtn"
+                                                data-session-id="{{ $session->id }}" data-bs-toggle="modal"
+                                                data-bs-target="#deleteModal">Delete</a>
                                         </td>
                                     </tr>
                                 @endforeach
