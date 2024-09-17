@@ -15,8 +15,8 @@
                         <h5 class="card-title row">
                             <span class="col-md-11">Session Details</span>
 
-                            {{-- hide button when status accepted or rejected --}}
-                            @if ($data['session']->status != 1 || $data['session']->status != 2)
+                            {{-- display button when status pending or rejected with reason --}}
+                            @if ($data['session']->status == 0 || $data['session']->status == 3)
                                 <a class="col-md-1 btn btn-success btn-sm" role="button" id="statusBtn"
                                     data-session-id="{{ $data['session']->id }}" data-bs-toggle="modal"
                                     data-bs-target="#statusModal">Status</a>
@@ -214,7 +214,7 @@
                         "closeButton": true,
                         "progressBar": true,
                         "positionClass": "toast-top-right",
-                        "timeOut": "2000",
+                        "timeOut": "1500",
                         "preventDuplicates": true,
                         "extendedTimeOut": "1000"
                     };
@@ -234,6 +234,12 @@
                             }
                         `
                     );
+
+                    // reload page after a short delay to allow the toastr to be visible
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1500); // Delay in milliseconds (match this with the timeOut value)
+
                 },
 
                 error: function(xhr, status, error) {
