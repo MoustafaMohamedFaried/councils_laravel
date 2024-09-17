@@ -23,7 +23,7 @@ class SessionDepartmentController extends Controller
         $this->middleware('auth');
         $this->middleware('is_active');
         // $this->middleware('is_super_or_system_admin')->except('index', 'show', 'getFacultiesByHeadquarter');
-        $this->middleware('ajax_only')->only('getInvitationFromDepartmentId', 'changeStatus');
+        $this->middleware('ajax_only')->except('index', 'create', 'edit', 'show');
     }
     /**
      * Display a listing of the resource.
@@ -127,7 +127,7 @@ class SessionDepartmentController extends Controller
                 // insert users
                 SessionDepartmentUser::insert($sessionUsers);
 
-                return response()->json(['message' => 'session created successfully']);
+                return response()->json(['message' => 'Session created successfully']);
             }
         } catch (ValidationException $e) {
             dd($e);
@@ -168,7 +168,36 @@ class SessionDepartmentController extends Controller
      */
     public function edit($session_id)
     {
-        //
+        // if user position is secretary of department council
+        if (auth()->user()->position_id == 2) {
+            $session = SessionDepartment::findOrFail($session_id);
+            $sessionTopics = SessionDepartmentTopic::where('session_id',$session_id)->pluck('agenda_id');
+            $sessionUsers = SessionDepartmentUser::where('session_id',$session_id)->pluck('user_id');
+
+            // can't edit if status accepted or rejected
+            if ($session->status != 1 || $session->status != 2) {
+
+                $secretaryDepartments = DepartmentCouncil::where('department_councils.user_id', auth()->id())
+                    ->join('departments', 'departments.id', '=', 'department_councils.department_id')
+                    ->select('departments.id as department_id', 'departments.ar_name as department_name');
+
+                // array like [department_id => department_name]
+                $departments = array_combine($secretaryDepartments->pluck('department_id')->toArray(), $secretaryDepartments->pluck('department_name')->toArray());
+
+                $data = [
+                    'session' => $session,
+                    'departments' => $departments,
+                    'sessionUsers' => $sessionUsers,
+                    'sessionTopics' => $sessionTopics
+                ];
+
+                return view('sessions.department.edit', compact('data'));
+            } else {
+                abort(403);
+            }
+        } else {
+            abort(401);
+        }
     }
 
     /**
@@ -176,7 +205,81 @@ class SessionDepartmentController extends Controller
      */
     public function update(UpdateSessionDepartmentRequest $request, $session_id)
     {
-        //
+        // dd($request->all());
+        try {
+            if (auth()->user()->position_id == 2) {
+
+                $session = SessionDepartment::findOrFail($session_id);
+                // delete old records
+                SessionDepartmentTopic::where('session_id',$session_id)->delete();
+                SessionDepartmentUser::where('session_id',$session_id)->delete();
+
+
+                $departmentCode = Department::where('id', $request->department_id)->value('code');
+                $sessionCode = $session->code;
+                // Split the $sessionCode at the "/"
+                list($beforeSlash, $afterSlash) = explode('/', $sessionCode);
+                // Replace the part before "/" with $departmentCode
+                $code = $departmentCode . '/' . $afterSlash;
+
+
+                $startDate = Carbon::parse($request->start_time);
+                // Format the start date and end date to match the desired format
+                $start_time = $startDate->format('Y-m-d H:i');
+                // Cast total_hours to an integer
+                $totalhours = intval($request->total_hours);
+                // Add the total hours to the start date
+                $endDateCarbon = $startDate->addHours($totalhours);
+                $schedual_end_time = $endDateCarbon->format('Y-m-d H:i');
+
+
+                $created_by = auth()->id();
+                $responsible_id = DepartmentCouncil::where('department_id', $request->department_id)
+                    ->where('position_id', 3)
+                    ->value('user_id');
+
+
+                $session->update([
+                    'department_id' => $request->department_id,
+                    'total_hours' => $request->total_hours,
+                    'decision_by' => $request->decision_by,
+                    'place' => $request->place,
+                    'start_time' => $start_time,
+                    'schedual_end_time' => $schedual_end_time,
+                    'created_by' => $created_by,
+                    'responsible_id' => $responsible_id,
+                    'code' => $code,
+                ]);
+
+
+                foreach ($request->agenda_id as $agendaId) {
+                    $sessionTopics[] = [
+                        'session_id' => $session->id,
+                        'agenda_id' => $agendaId
+                    ];
+                }
+                // insert agendas
+                SessionDepartmentTopic::insert($sessionTopics);
+
+
+                foreach ($request->user_id as $userId) {
+                    $sessionUsers[] = [
+                        'session_id' => $session->id,
+                        'user_id' => $userId
+                    ];
+                }
+                // insert users
+                SessionDepartmentUser::insert($sessionUsers);
+
+                return response()->json(['message' => 'Session updated successfully']);
+            }
+        } catch (ValidationException $e) {
+            dd($e);
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], 422);
+        }
     }
 
     /**

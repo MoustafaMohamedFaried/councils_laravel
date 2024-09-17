@@ -15,8 +15,8 @@
                         <h5 class="card-title row">
                             <span class="col-md-11">Session Details</span>
 
-                            {{-- display button when status not accepted --}}
-                            @if ($data['session']->status != 1)
+                            {{-- hide button when status accepted or rejected --}}
+                            @if ($data['session']->status != 1 || $data['session']->status != 2)
                                 <a class="col-md-1 btn btn-success btn-sm" role="button" id="statusBtn"
                                     data-session-id="{{ $data['session']->id }}" data-bs-toggle="modal"
                                     data-bs-target="#statusModal">Status</a>
