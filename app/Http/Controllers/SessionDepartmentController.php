@@ -287,7 +287,17 @@ class SessionDepartmentController extends Controller
      */
     public function destroy($session_id)
     {
-        //
+        try {
+            $session = SessionDepartment::findOrFail($session_id);
+            $session->delete();
+
+            return response()->json(['message' => 'Session deleted successfully'], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], 422);
+        }
     }
 
     public function getInvitationFromDepartmentId($department_id)

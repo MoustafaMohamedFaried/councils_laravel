@@ -60,7 +60,7 @@
                                                 href="{{ route('sessions-departments.edit', $session->id) }}"
                                                 id="editsessionBtn">Edit</a>
 
-                                            <a class="btn btn-danger btn-sm" role="button" id="deletesessionBtn"
+                                            <a class="btn btn-danger btn-sm" role="button" id="deleteSessionBtn"
                                                 data-session-id="{{ $session->id }}" data-bs-toggle="modal"
                                                 data-bs-target="#deleteModal">Delete</a>
                                         </td>
@@ -99,4 +99,73 @@
             </div>
         </div>
     </div>
+
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $(document).on('click', '#deleteSessionBtn', function() {
+            var sessionId = $(this).data('session-id'); // Get the session ID from the clicked button
+            // Show the confirmation modal
+            $('#deleteModal').modal('show');
+
+            // Handle the delete confirmation button click inside the modal
+            $('#confirmDeleteBtn').off('click').on('click', function() {
+                $.ajax({
+                    type: "DELETE",
+                    url: `/sessions-departments/${sessionId}`,
+                    success: function(response) {
+                        $('#deleteModal').modal('hide'); // Hide the modal after deletion
+
+                        $(`#session_${sessionId}`).remove();
+
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "3500",
+                            "preventDuplicates": true,
+                            "extendedTimeOut": "1000"
+                        };
+
+                        toastr.success(response.message);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("An error occurred: ", error);
+                        console.log(xhr.responseText);
+
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "3000",
+                            "preventDuplicates": true,
+                            "extendedTimeOut": "1000"
+                        };
+
+                        // Parse the response JSON
+                        var response = JSON.parse(xhr.responseText);
+
+                        // Concatenate all error messages into a single string
+                        var errorMessage = "";
+
+                        if (response.errors) {
+                            $.each(response.errors, function(field, messages) {
+                                $.each(messages, function(index, message) {
+                                    errorMessage +=
+                                        `<div class="container">${message}<br></div>`;
+                                });
+                            });
+
+                            // Display all error messages in a single toastr notification
+                            toastr.error(errorMessage);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+
 @endsection
