@@ -77,6 +77,7 @@ Route::resource('agendas', TopicAgendaController::class);
 
 Route::prefix('sessions-departments')->controller(SessionDepartmentController::class)->group(function () {
     Route::get('/getInvitationFromDepartmentId/{department_id}', 'getInvitationFromDepartmentId')->name('sessions-departments.getInvitationFromDepartmentId');
+    Route::put('/changeStatus/{session_id}', 'changeStatus')->name('sessions-departments.changeStatus');
 });
 Route::resource('sessions-departments', SessionDepartmentController::class);
 

@@ -13,6 +13,8 @@ use App\Models\TopicAgenda;
 use Carbon\Carbon;
 use DateTime;
 use Dotenv\Exception\ValidationException;
+// use Illuminate\Http\Client\Request;
+use Illuminate\Http\Request;
 
 class SessionDepartmentController extends Controller
 {
@@ -21,7 +23,7 @@ class SessionDepartmentController extends Controller
         $this->middleware('auth');
         $this->middleware('is_active');
         // $this->middleware('is_super_or_system_admin')->except('index', 'show', 'getFacultiesByHeadquarter');
-        // $this->middleware('ajax_only')->except('index');
+        $this->middleware('ajax_only')->only('getInvitationFromDepartmentId', 'changeStatus');
     }
     /**
      * Display a listing of the resource.
@@ -195,5 +197,19 @@ class SessionDepartmentController extends Controller
         $invitations = array_combine($usersData->pluck('user_id')->toArray(), $usersData->pluck('user_name')->toArray());
 
         return response()->json($invitations);
+    }
+    public function changeStatus($session_id, Request $request)
+    {
+        $session = SessionDepartment::findOrFail($session_id);
+
+        $session->update([
+            'status' => $request->status,
+            'reject_reason' => $request->reject_reason,
+        ]);
+
+        return response()->json([
+            'message' => 'Status changed successfully',
+            'data' => ['status' => $session->status, 'reject_reason' => $session->reject_reason]
+        ], 200);
     }
 }
