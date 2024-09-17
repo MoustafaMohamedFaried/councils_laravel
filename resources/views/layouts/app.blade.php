@@ -151,7 +151,8 @@
             width: 200px;
             height: auto;
             background-color: #fff;
-            margin: 20px auto;
+            /*margin: 20px auto;*/
+            margin: -1px 1px;
             webkit-box-shadow: 3px 5px 10px 0px rgba(0, 0, 0, 0.16);
             -moz-box-shadow: 3px 5px 10px 0px rgba(0, 0, 0, 0.16);
             box-shadow: 3px 5px 10px 0px rgba(0, 0, 0, 0.16);
