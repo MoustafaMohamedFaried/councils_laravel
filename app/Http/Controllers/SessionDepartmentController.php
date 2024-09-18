@@ -23,7 +23,7 @@ class SessionDepartmentController extends Controller
         $this->middleware('auth');
         $this->middleware('is_active');
         // $this->middleware('is_super_or_system_admin')->except('index', 'show', 'getFacultiesByHeadquarter');
-        $this->middleware('ajax_only')->except('index', 'create', 'edit', 'show');
+        $this->middleware('ajax_only')->except('index', 'create', 'edit', 'show', 'startSession');
     }
     /**
      * Display a listing of the resource.
@@ -171,8 +171,8 @@ class SessionDepartmentController extends Controller
         // if user position is secretary of department council
         if (auth()->user()->position_id == 2) {
             $session = SessionDepartment::findOrFail($session_id);
-            $sessionTopics = SessionDepartmentTopic::where('session_id',$session_id)->pluck('agenda_id');
-            $sessionUsers = SessionDepartmentUser::where('session_id',$session_id)->pluck('user_id');
+            $sessionTopics = SessionDepartmentTopic::where('session_id', $session_id)->pluck('agenda_id');
+            $sessionUsers = SessionDepartmentUser::where('session_id', $session_id)->pluck('user_id');
 
             // can't edit if status accepted or rejected
             if ($session->status != 1 || $session->status != 2) {
@@ -211,8 +211,8 @@ class SessionDepartmentController extends Controller
 
                 $session = SessionDepartment::findOrFail($session_id);
                 // delete old records
-                SessionDepartmentTopic::where('session_id',$session_id)->delete();
-                SessionDepartmentUser::where('session_id',$session_id)->delete();
+                SessionDepartmentTopic::where('session_id', $session_id)->delete();
+                SessionDepartmentUser::where('session_id', $session_id)->delete();
 
 
                 $departmentCode = Department::where('id', $request->department_id)->value('code');
@@ -324,5 +324,20 @@ class SessionDepartmentController extends Controller
             'message' => 'Status changed successfully',
             'data' => ['status' => $session->status, 'reject_reason' => $session->reject_reason]
         ], 200);
+    }
+
+    public function startSession($session_id)
+    {
+        $session = SessionDepartment::findOrFail($session_id);
+        $sessionTopics = SessionDepartmentTopic::where('session_id', $session_id)->pluck('agenda_id');
+        $sessionUsers = SessionDepartmentUser::where('session_id', $session_id)->pluck('user_id');
+
+        $data = [
+            'session' => $session,
+            'sessionTopics' => $sessionTopics,
+            'sessionUsers' => $sessionUsers,
+        ];
+
+        return view('sessions.department.start_session', compact('data'));
     }
 }

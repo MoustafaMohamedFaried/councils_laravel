@@ -63,7 +63,7 @@
                                                     <li>
                                                         <a class="dropdown-item text-success"
                                                             href="{{ route('sessions-departments.show', $session->id) }}"
-                                                            id="viewsessionBtn">View</a>
+                                                            id="viewSessionBtn">View</a>
                                                     </li>
                                                     @if (auth()->id() == $session->created_by)
                                                         {{-- display if status is pending or rejected with reason --}}
@@ -81,6 +81,11 @@
                                                             </li>
                                                         @endif
                                                     @endif
+                                                    <li>
+                                                        <a class="dropdown-item text-success"
+                                                            href="{{ route('sessions-departments.start-session', $session->id) }}"
+                                                            id="startSessionBtn">Start Session</a>
+                                                    </li>
                                                 </ul>
                                             </div>
                                         </td>
