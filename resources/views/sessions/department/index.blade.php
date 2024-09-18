@@ -56,13 +56,19 @@
                                                 href="{{ route('sessions-departments.show', $session->id) }}"
                                                 id="viewsessionBtn">View</a>
 
-                                            <a class="btn btn-primary btn-sm"
-                                                href="{{ route('sessions-departments.edit', $session->id) }}"
-                                                id="editsessionBtn">Edit</a>
+                                            @if (auth()->id() == $session->created_by)
+                                                {{-- display if status is pending or rejected with reason --}}
+                                                @if ($session->status == 0 || $session->status == 3)
+                                                    <a class="btn btn-primary btn-sm"
+                                                        href="{{ route('sessions-departments.edit', $session->id) }}"
+                                                        id="editsessionBtn">Edit</a>
 
-                                            <a class="btn btn-danger btn-sm" role="button" id="deleteSessionBtn"
-                                                data-session-id="{{ $session->id }}" data-bs-toggle="modal"
-                                                data-bs-target="#deleteModal">Delete</a>
+                                                    <a class="btn btn-danger btn-sm" role="button" id="deleteSessionBtn"
+                                                        data-session-id="{{ $session->id }}" data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal">Delete</a>
+                                                @endif
+                                            @endif
+
                                         </td>
                                     </tr>
                                 @endforeach

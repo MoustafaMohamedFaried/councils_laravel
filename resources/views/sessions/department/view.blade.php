@@ -15,11 +15,13 @@
                         <h5 class="card-title row">
                             <span class="col-md-11">Session Details</span>
 
-                            {{-- display button when status pending or rejected with reason --}}
-                            @if ($data['session']->status == 0 || $data['session']->status == 3)
-                                <a class="col-md-1 btn btn-success btn-sm" role="button" id="statusBtn"
-                                    data-session-id="{{ $data['session']->id }}" data-bs-toggle="modal"
-                                    data-bs-target="#statusModal">Status</a>
+                            @if (auth()->id() == $data['session']->responsible_id)
+                                {{-- display button when status pending or rejected with reason --}}
+                                @if ($data['session']->status == 0 || $data['session']->status == 3)
+                                    <a class="col-md-1 btn btn-success btn-sm" role="button" id="statusBtn"
+                                        data-session-id="{{ $data['session']->id }}" data-bs-toggle="modal"
+                                        data-bs-target="#statusModal">Status</a>
+                                @endif
                             @endif
                         </h5>
                     </div>
@@ -214,14 +216,15 @@
                         "closeButton": true,
                         "progressBar": true,
                         "positionClass": "toast-top-right",
-                        "timeOut": "1500",
+                        "timeOut": "1300",
                         "preventDuplicates": true,
                         "extendedTimeOut": "1000"
                     };
 
                     toastr.success(response.message);
 
-                    $("#rejectReasonRow").html(` <b>Reject reason:</b> ${response.data.reject_reason || 'ﻻيوجد'} `);
+                    $("#rejectReasonRow").html(
+                        ` <b>Reject reason:</b> ${response.data.reject_reason || 'ﻻيوجد'} `);
                     $("#statusRow").html(
                         `
                             <b>Status:</b>
@@ -238,7 +241,7 @@
                     // reload page after a short delay to allow the toastr to be visible
                     setTimeout(function() {
                         window.location.reload();
-                    }, 1500); // Delay in milliseconds (match this with the timeOut value)
+                    }, 1300); // Delay in milliseconds (match this with the timeOut value)
 
                 },
 
