@@ -82,7 +82,7 @@
                                                         @endif
                                                     @endif
                                                     <li>
-                                                        <a class="dropdown-item text-success"
+                                                        <a class="dropdown-item text-info"
                                                             href="{{ route('sessions-departments.start-session', $session->id) }}"
                                                             id="startSessionBtn">Start Session</a>
                                                     </li>

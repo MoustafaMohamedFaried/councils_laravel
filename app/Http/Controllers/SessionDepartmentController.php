@@ -7,6 +7,7 @@ use App\Http\Requests\StoreSessionDepartmentRequest;
 use App\Http\Requests\UpdateSessionDepartmentRequest;
 use App\Models\Department;
 use App\Models\DepartmentCouncil;
+use App\Models\SessionDepartmentAttendance;
 use App\Models\SessionDepartmentTopic;
 use App\Models\SessionDepartmentUser;
 use App\Models\TopicAgenda;
@@ -340,4 +341,52 @@ class SessionDepartmentController extends Controller
 
         return view('sessions.department.start_session', compact('data'));
     }
+
+    public function fetchAttendance($session_id)
+    {
+        $session = SessionDepartment::findOrFail($session_id);
+        $sessionUsers = SessionDepartmentUser::where('session_department_user.session_id', $session_id)
+            ->join('users', 'users.id', 'session_department_user.user_id')
+            ->select('users.name as user_name', 'users.id as user_id')
+            ->get();
+
+        $sessionAttendance = SessionDepartmentAttendance::where('session_id', $session_id)->get();
+
+        // Create an associative array for attendance with user_id as key
+        $attendanceData = $sessionAttendance->mapWithKeys(function ($item) {
+            return [$item->user_id => $item->status];
+        });
+
+        $invitations = $sessionUsers->pluck('user_name', 'user_id')->toArray();
+
+        $data = [
+            'session' => $session,
+            'invitations' => $invitations,
+            'attendance' => $attendanceData
+        ];
+
+        return view('sessions.department.attendance', compact('data'));
+    }
+
+
+    public function saveAttendance(Request $request, $session_id)
+    {
+        // delete attendance if found
+        SessionDepartmentAttendance::where('session_id',$session_id)->delete();
+
+        if (is_array($request->input('attendance'))) {
+            foreach ($request->input('attendance') as $record) {
+                $attendance[] = [
+                    'session_id' => $session_id,
+                    'user_id' => $record['user_id'],
+                    'status' => $record['status']
+                ];
+            }
+        }
+
+        SessionDepartmentAttendance::insert($attendance);
+
+        return response()->json(['message' => 'Attendance saved successfully'], 200);
+    }
+
 }

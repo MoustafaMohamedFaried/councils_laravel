@@ -36,13 +36,10 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" id="closeAttendanceModal"
                             aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" id="viewAttendanceContent">
                         {{-- content of attendance --}}
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -99,5 +96,16 @@
         });
 
         var sessionId = `{{ $data['session']->id }}`;
+
+        $(document).on('click', '#attendanceBtn', function() {
+
+            $.ajax({
+                type: "GET",
+                url: `/sessions-departments/fetch-attendance/${sessionId}`,
+                success: function(response) {
+                    $('#viewAttendanceContent').html(response);
+                }
+            });
+        });
     </script>
 @endsection
