@@ -72,13 +72,10 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" id="closeVoteModal"
                             aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" id="viewVoteContent">
                         {{-- content of Vote --}}
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -112,6 +109,17 @@
                 url: `/sessions-departments/fetch-decision/${sessionId}`,
                 success: function(response) {
                     $('#viewDecisionContent').html(response);
+                }
+            });
+        });
+
+        $(document).on('click', '#voteBtn', function() {
+
+            $.ajax({
+                type: "GET",
+                url: `/sessions-departments/fetch-vote/${sessionId}`,
+                success: function(response) {
+                    $('#viewVoteContent').html(response);
                 }
             });
         });

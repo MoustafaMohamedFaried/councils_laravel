@@ -81,11 +81,13 @@
                                                             </li>
                                                         @endif
                                                     @endif
-                                                    <li>
-                                                        <a class="dropdown-item text-info"
-                                                            href="{{ route('sessions-departments.start-session', $session->id) }}"
-                                                            id="startSessionBtn">Start Session</a>
-                                                    </li>
+                                                    @if ($session->status == 1)
+                                                        <li>
+                                                            <a class="dropdown-item text-info"
+                                                                href="{{ route('sessions-departments.start-session', $session->id) }}"
+                                                                id="startSessionBtn">Start Session</a>
+                                                        </li>
+                                                    @endif
                                                 </ul>
                                             </div>
                                         </td>

@@ -9,6 +9,7 @@ use App\Models\Department;
 use App\Models\DepartmentCouncil;
 use App\Models\SessionDepartmentAttendance;
 use App\Models\SessionDepartmentDecision;
+use App\Models\SessionDepartmentDecisionVote;
 use App\Models\SessionDepartmentTopic;
 use App\Models\SessionDepartmentUser;
 use App\Models\TopicAgenda;
@@ -373,7 +374,7 @@ class SessionDepartmentController extends Controller
     public function saveAttendance(Request $request, $session_id)
     {
         // delete attendance if found
-        SessionDepartmentAttendance::where('session_id',$session_id)->delete();
+        SessionDepartmentAttendance::where('session_id', $session_id)->delete();
 
         if (is_array($request->input('attendance'))) {
             foreach ($request->input('attendance') as $record) {
@@ -420,7 +421,7 @@ class SessionDepartmentController extends Controller
     public function saveDecision(Request $request, $session_id)
     {
         // delete decision if found
-        SessionDepartmentDecision::where('session_id',$session_id)->delete();
+        SessionDepartmentDecision::where('session_id', $session_id)->delete();
 
         if (is_array($request->input('decisions'))) {
             foreach ($request->input('decisions') as $record) {
@@ -437,4 +438,59 @@ class SessionDepartmentController extends Controller
         return response()->json(['message' => 'Decision saved successfully'], 200);
     }
 
+    public function fetchVote($session_id)
+    {
+        $session = SessionDepartment::findOrFail($session_id);
+
+        $sessionDecisions = SessionDepartmentDecision::where('session_department_decisions.session_id', $session_id)
+            ->join('topic_agendas', 'topic_agendas.id', 'session_department_decisions.agenda_id')
+            ->join('topics', 'topics.id', 'topic_agendas.topic_id')
+            ->select('topics.title as topic_title', 'session_department_decisions.id as decision_id', 'session_department_decisions.decision as decision')
+            ->get();
+
+        $sessionUsers = SessionDepartmentUser::where('session_department_user.session_id', $session_id)
+            ->join('users', 'users.id', 'session_department_user.user_id')
+            ->select('users.name as user_name', 'users.id as user_id')
+            ->get();
+
+        $sessionDecisionVote = SessionDepartmentDecisionVote::where('session_id', $session_id)->get();
+
+        $voteDecisionData = $sessionDecisionVote->mapWithKeys(function ($item) {
+            return [$item->user_id => $item->status];
+        });
+
+        $invitations = $sessionUsers->pluck('user_name', 'user_id')->toArray();
+
+        $data = [
+            'session' => $session,
+            'invitations' => $invitations,
+            'decision' => $sessionDecisions->toArray(),
+            'vote' => $voteDecisionData
+        ];
+
+        return view('sessions.department.vote', compact('data'));
+    }
+
+    public function saveVote(Request $request, $session_id)
+    {
+        // delete decision if found
+        SessionDepartmentDecisionVote::where('session_id',$session_id)->delete();
+
+        if (is_array($request->input('vote'))) {
+            foreach ($request->input('vote') as $record) {
+                $decision[] = [
+                    'session_id' => $session_id,
+                    'decision_id' => $record['decision_id'],
+                    'user_id' => $record['user_id'],
+                    'status' => $record['status']
+                ];
+            }
+        }
+
+        // dd($decision);
+
+        SessionDepartmentDecisionVote::insert($decision);
+
+        return response()->json(['message' => 'Vote saved successfully'], 200);
+    }
 }
