@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateSessionDepartmentRequest;
 use App\Models\Department;
 use App\Models\DepartmentCouncil;
 use App\Models\SessionDepartmentAttendance;
+use App\Models\SessionDepartmentDecision;
 use App\Models\SessionDepartmentTopic;
 use App\Models\SessionDepartmentUser;
 use App\Models\TopicAgenda;
@@ -387,6 +388,53 @@ class SessionDepartmentController extends Controller
         SessionDepartmentAttendance::insert($attendance);
 
         return response()->json(['message' => 'Attendance saved successfully'], 200);
+    }
+
+    public function fetchDecision($session_id)
+    {
+        $session = SessionDepartment::findOrFail($session_id);
+        $sessionTopics = SessionDepartmentTopic::where('session_department_topics.session_id', $session_id)
+            ->join('topic_agendas', 'topic_agendas.id', 'session_department_topics.agenda_id')
+            ->join('topics', 'topics.id', 'topic_agendas.topic_id')
+            ->select('topics.title as topic_title', 'topic_agendas.id as topic_id')
+            ->get();
+
+        $sessionDecision = SessionDepartmentDecision::where('session_id', $session_id)->get();
+// dd($sessionDecision);
+        // Create an associative array for attendance with topic_id as key
+        $decisionData = $sessionDecision->mapWithKeys(function ($item) {
+            return [$item->agenda_id => $item->decision];
+        });
+
+        $topics = $sessionTopics->pluck('decision', 'topic_id')->toArray();
+
+        $data = [
+            'session' => $session,
+            'topics' => $topics,
+            'decision' => $decisionData
+        ];
+
+        return view('sessions.department.decision', compact('data'));
+    }
+
+    public function saveDecision(Request $request, $session_id)
+    {
+        // delete decision if found
+        SessionDepartmentDecision::where('session_id',$session_id)->delete();
+
+        if (is_array($request->input('decisions'))) {
+            foreach ($request->input('decisions') as $record) {
+                $decision[] = [
+                    'session_id' => $session_id,
+                    'agenda_id' => $record['agenda_id'],
+                    'decision' => $record['decision']
+                ];
+            }
+        }
+
+        SessionDepartmentDecision::insert($decision);
+
+        return response()->json(['message' => 'Decision saved successfully'], 200);
     }
 
 }

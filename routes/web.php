@@ -81,6 +81,8 @@ Route::prefix('sessions-departments')->controller(SessionDepartmentController::c
     Route::get('/start-session/{session_id}', 'startSession')->name('sessions-departments.start-session');
     Route::get('/fetch-attendance/{session_id}', 'fetchAttendance')->name('sessions-departments.fetch-attendance');
     Route::post('/save-attendance/{session_id}', 'saveAttendance')->name('sessions-departments.save-attendance');
+    Route::get('/fetch-decision/{session_id}', 'fetchDecision')->name('sessions-departments.fetch-decision');
+    Route::post('/save-decision/{session_id}', 'saveDecision')->name('sessions-departments.save-decision');
 });
 Route::resource('sessions-departments', SessionDepartmentController::class);
 

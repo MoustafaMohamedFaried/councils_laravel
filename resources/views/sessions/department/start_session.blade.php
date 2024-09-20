@@ -7,12 +7,12 @@
 @section('content')
     <div class="container">
         <div class="row text-center" style="margin-top: 25rem">
-            <p class="col-md-2"><b>Session Code:</b> {{ $data['session']->code }}</p>
-            <div class="col-md-3">
+            <p class="col-md-4"><b>Session Code:</b> {{ $data['session']->code }}</p>
+            <div class="col-md-2">
                 <button class="btn btn-primary" id="attendanceBtn" data-bs-toggle="modal"
                     data-bs-target="#attendanceModal">Attendance</button>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <button class="btn btn-primary" id="decisionBtn" data-bs-toggle="modal"
                     data-bs-target="#decisionModal">Decision</button>
             </div>
@@ -54,13 +54,10 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" id="closeDecisionModal"
                             aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" id="viewDecisionContent">
                         {{-- content of Decision --}}
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -104,6 +101,17 @@
                 url: `/sessions-departments/fetch-attendance/${sessionId}`,
                 success: function(response) {
                     $('#viewAttendanceContent').html(response);
+                }
+            });
+        });
+
+        $(document).on('click', '#decisionBtn', function() {
+
+            $.ajax({
+                type: "GET",
+                url: `/sessions-departments/fetch-decision/${sessionId}`,
+                success: function(response) {
+                    $('#viewDecisionContent').html(response);
                 }
             });
         });
