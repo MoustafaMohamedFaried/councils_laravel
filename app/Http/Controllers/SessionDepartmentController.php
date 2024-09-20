@@ -400,13 +400,13 @@ class SessionDepartmentController extends Controller
             ->get();
 
         $sessionDecision = SessionDepartmentDecision::where('session_id', $session_id)->get();
-// dd($sessionDecision);
+
         // Create an associative array for attendance with topic_id as key
         $decisionData = $sessionDecision->mapWithKeys(function ($item) {
             return [$item->agenda_id => $item->decision];
         });
 
-        $topics = $sessionTopics->pluck('decision', 'topic_id')->toArray();
+        $topics = $sessionTopics->pluck('topic_title', 'topic_id')->toArray();
 
         $data = [
             'session' => $session,
