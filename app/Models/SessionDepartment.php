@@ -27,6 +27,13 @@ class SessionDepartment extends Model
         'decision_by',
     ];
 
+    protected $casts = [
+        'start_time' => 'datetime',
+        'schedual_end_time' => 'datetime',
+        'actual_start_time' => 'datetime',
+        'actual_end_time' => 'datetime',
+    ];
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);

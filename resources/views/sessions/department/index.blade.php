@@ -81,7 +81,7 @@
                                                             </li>
                                                         @endif
                                                     @endif
-                                                    @if ($session->status == 1)
+                                                    @if ($session->status == 1 && $session->start_time->lessThanOrEqualTo(now()))
                                                         <li>
                                                             <a class="dropdown-item text-info"
                                                                 href="{{ route('sessions-departments.start-session', $session->id) }}"

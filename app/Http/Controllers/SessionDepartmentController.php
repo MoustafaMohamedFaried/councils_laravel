@@ -332,6 +332,7 @@ class SessionDepartmentController extends Controller
     public function startSession($session_id)
     {
         $session = SessionDepartment::findOrFail($session_id);
+
         $sessionTopics = SessionDepartmentTopic::where('session_id', $session_id)->pluck('agenda_id');
         $sessionUsers = SessionDepartmentUser::where('session_id', $session_id)->pluck('user_id');
 
@@ -341,7 +342,11 @@ class SessionDepartmentController extends Controller
             'sessionUsers' => $sessionUsers,
         ];
 
-        return view('sessions.department.start_session', compact('data'));
+        if ($session->start_time->lessThanOrEqualTo(now())) {
+            return view('sessions.department.start_session', compact('data'));
+        } else {
+            abort(403,"Session doesn't start yet.");
+        }
     }
 
     public function fetchAttendance($session_id)
