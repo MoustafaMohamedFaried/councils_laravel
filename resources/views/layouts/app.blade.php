@@ -149,7 +149,8 @@
     <style>
         .sidebar-navigation {
             width: 200px;
-            height: 50rem;
+            /* height: 50rem; */
+            height: auto;
             background-color: #fff;
             /*margin: 20px auto;*/
             margin: -1px 1px;

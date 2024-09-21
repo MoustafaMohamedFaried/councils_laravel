@@ -519,45 +519,9 @@ class SessionDepartmentController extends Controller
     {
         $session = SessionDepartment::findOrFail($session_id);
 
-        $sessionDecisions = SessionDepartmentDecision::where('session_department_decisions.session_id', $session_id)
-            ->join('topic_agendas', 'topic_agendas.id', '=', 'session_department_decisions.agenda_id')
-            ->join('topics as sup_topic', 'sup_topic.id', '=', 'topic_agendas.topic_id')
-            ->join('topics as main_topic', 'main_topic.id', '=', 'sup_topic.main_topic_id')
-            ->select(
-                'sup_topic.title as topic_title',
-                'main_topic.title as main_topic',
-                'session_department_decisions.decision as decision'
-            )
-            ->get();
-
-        $topicWithDecision = []; // Initialize the array outside the loop
-        foreach ($sessionDecisions as $decision) {
-            $mainTopic = $decision['main_topic']; // Get the main topic
-            $topicTitle = $decision['topic_title'];
-            $decisionText = $decision['decision'];
-
-            // Check if the main topic already exists in the array
-            if (!isset($topicWithDecision[$mainTopic])) {
-                // If not, create a new entry for the main topic
-                $topicWithDecision[$mainTopic] = [];
-            }
-
-            // Append the topic title and decision as an associative array
-            $topicWithDecision[$mainTopic][] = [
-                'topic_title' => $topicTitle,
-                'decision' => $decisionText,
-            ];
-        }
-
-        // Now to format the output as desired
-        $formattedTopicWithDecision = [];
-        foreach ($topicWithDecision as $mainTopic => $topics) {
-            $formattedTopicWithDecision[] = [
-                $mainTopic => $topics,
-            ];
-        }
-
-        // dd($formattedTopicWithDecision);
+        $sessionDecisions = $this->instializeDecisions($session_id);
+        $sessionMembers = $this->instializeMembers($session_id);
+        // dd($sessionDecisions);
 
         $sessionAttendance = SessionDepartmentAttendance::where('session_id', $session_id)->get();
         $sessionDecisionVote = SessionDepartmentDecisionVote::where('session_id', $session_id)->get();
@@ -569,7 +533,7 @@ class SessionDepartmentController extends Controller
             } else {
                 return abort(404);
             }
-        } elseif ($sessionDecisions->isEmpty()) {
+        } elseif (!$sessionDecisions) {
             $message = 'No decisions taken for this session';
 
             if (request()->ajax()) {
@@ -587,7 +551,126 @@ class SessionDepartmentController extends Controller
         }
 
         // dd($session);
-        $data = [];
+        $data = [
+            'session' => $session,
+            'members' => $sessionMembers,
+            'decisions' => $sessionDecisions
+        ];
         return view('sessions.department.session_report', compact('data'));
+    }
+
+    // handle decision for using at session report
+    protected function instializeDecisions($session_id)
+    {
+        $sessionDecisions = SessionDepartmentDecision::where('session_department_decisions.session_id', $session_id)
+            ->join('topic_agendas', 'topic_agendas.id', '=', 'session_department_decisions.agenda_id')
+            ->join('topics as sup_topic', 'sup_topic.id', '=', 'topic_agendas.topic_id')
+            ->join('topics as main_topic', 'main_topic.id', '=', 'sup_topic.main_topic_id')
+            ->select(
+                'sup_topic.title as topic_title',
+                'main_topic.title as main_topic',
+                'session_department_decisions.decision as decision',
+                'session_department_decisions.decision_status as decision_status'
+            )
+            ->get();
+
+        $topicWithDecision = [];
+        $statusMapping = [
+            1 => "موافقة بالاجماع",
+            2 => "رفض بالاجماع",
+            3 => "موافقة بالاغلبية",
+            4 => "موافقة بالاغلبية",
+        ];
+
+        foreach ($sessionDecisions as $decision) {
+            $mainTopic = $decision['main_topic'];
+            $topicTitle = $decision['topic_title'];
+            $decisionText = $decision['decision'];
+            $decision_statusText = $statusMapping[$decision['decision_status']] ?? $decision['decision_status']; // Map the status
+
+            if (!isset($topicWithDecision[$mainTopic])) {
+                $topicWithDecision[$mainTopic] = [];
+            }
+
+            $topicWithDecision[$mainTopic][] = [
+                'topic_title' => $topicTitle,
+                'decision' => $decisionText,
+                'decision_status' => $decision_statusText,
+            ];
+        }
+
+        $formattedTopicWithDecision = [];
+        foreach ($topicWithDecision as $mainTopic => $topics) {
+            $formattedTopicWithDecision[$mainTopic] = $topics;
+        }
+
+        return $formattedTopicWithDecision;
+    }
+
+
+    // handle Members for using at session report
+    protected function instializeMembers($session_id)
+    {
+        $sessionMembers = SessionDepartmentAttendance::where('session_department_attendances.session_id', $session_id)
+            ->join('users', 'users.id', '=', 'session_department_attendances.user_id')
+            ->join('positions', 'positions.id', '=', 'users.position_id')
+            ->select(
+                'users.name as user_name',
+                'positions.ar_name as position',
+                'session_department_attendances.status as status',
+            )
+            ->get();
+
+        // Map the status values to their corresponding descriptions
+        $statusMapping = [
+            1 => "حاضر",
+            2 => "غياب",
+        ];
+
+        // Transform the members array
+        $sessionMembersArray = $sessionMembers->map(function ($member) use ($statusMapping) {
+            $member->status = $statusMapping[$member->status] ?? 'غير معروف'; // Fallback if status is not in the mapping
+            return $member;
+        })->toArray();
+
+        return $sessionMembersArray;
+    }
+
+    public static function arabicOrdinal($number)
+    {
+        $ordinals = [
+            1 => 'الأول',
+            2 => 'الثاني',
+            3 => 'الثالث',
+            4 => 'الرابع',
+            5 => 'الخامس',
+            6 => 'السادس',
+            7 => 'السابع',
+            8 => 'الثامن',
+            9 => 'التاسع',
+            10 => 'العاشر',
+            11 => 'الحادي عشر',
+            12 => 'الثاني عشر',
+            13 => 'الثالث عشر',
+            14 => 'الرابع عشر',
+            15 => 'الخامس عشر',
+            16 => 'السادس عشر',
+            17 => 'السابع عشر',
+            18 => 'الثامن عشر',
+            19 => 'التاسع عشر',
+            20 => 'العشرون',
+            21 => 'الحادي والعشرون',
+            22 => 'الثاني والعشرون',
+            23 => 'الثالث والعشرون',
+            24 => 'الرابع والعشرون',
+            25 => 'الخامس والعشرون',
+            26 => 'السادس والعشرون',
+            27 => 'السابع والعشرون',
+            28 => 'الثامن والعشرون',
+            29 => 'التاسع والعشرون',
+            30 => 'الثلاثون',
+        ];
+
+        return $ordinals[$number] ?? $number;
     }
 }
