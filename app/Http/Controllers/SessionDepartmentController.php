@@ -453,6 +453,11 @@ class SessionDepartmentController extends Controller
             ->select('topics.title as topic_title', 'session_department_decisions.id as decision_id', 'session_department_decisions.decision as decision')
             ->get();
 
+        if ($sessionDecisions->isEmpty()) {
+            // Return a JSON response with a message and 404 status code if there are no decisions
+            return response()->json(['message' => 'No decisions available for this session to vote'], 404);
+        }
+
         $sessionUsers = SessionDepartmentUser::where('session_department_user.session_id', $session_id)
             ->join('users', 'users.id', 'session_department_user.user_id')
             ->select('users.name as user_name', 'users.id as user_id')

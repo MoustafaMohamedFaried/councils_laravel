@@ -279,6 +279,37 @@
                 url: `/sessions-departments/fetch-attendance/${sessionId}`,
                 success: function(response) {
                     $('#viewAttendanceContent').html(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("An error occurred: ", error);
+                    console.log(xhr.responseText);
+
+                    toastr.options = {
+                        "closeButton": true,
+                        "progressBar": true,
+                        "positionClass": "toast-top-right",
+                        "timeOut": "3000",
+                        "preventDuplicates": true,
+                        "extendedTimeOut": "1000"
+                    };
+
+                    // Parse the response JSON
+                    var response = JSON.parse(xhr.responseText);
+
+                    // Concatenate all error messages into a single string
+                    var errorMessage = "";
+
+                    if (response.errors) {
+                        $.each(response.errors, function(field, messages) {
+                            $.each(messages, function(index, message) {
+                                errorMessage +=
+                                    `<div class="container">${message}<br></div>`;
+                            });
+                        });
+
+                        // Display all error messages in a single toastr notification
+                        toastr.error(errorMessage);
+                    }
                 }
             });
         });
@@ -290,17 +321,100 @@
                 url: `/sessions-departments/fetch-decision/${sessionId}`,
                 success: function(response) {
                     $('#viewDecisionContent').html(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("An error occurred: ", error);
+                    console.log(xhr.responseText);
+
+                    toastr.options = {
+                        "closeButton": true,
+                        "progressBar": true,
+                        "positionClass": "toast-top-right",
+                        "timeOut": "3000",
+                        "preventDuplicates": true,
+                        "extendedTimeOut": "1000"
+                    };
+
+                    // Parse the response JSON
+                    var response = JSON.parse(xhr.responseText);
+
+                    // Concatenate all error messages into a single string
+                    var errorMessage = "";
+
+                    if (response.errors) {
+                        $.each(response.errors, function(field, messages) {
+                            $.each(messages, function(index, message) {
+                                errorMessage +=
+                                    `<div class="container">${message}<br></div>`;
+                            });
+                        });
+
+                        // Display all error messages in a single toastr notification
+                        toastr.error(errorMessage);
+                    }
                 }
             });
         });
 
-        $(document).on('click', '#voteBtn', function() {
+        $(document).on('click', '#voteBtn', function(e) {
+            e.preventDefault();
 
             $.ajax({
                 type: "GET",
                 url: `/sessions-departments/fetch-vote/${sessionId}`,
                 success: function(response) {
                     $('#viewVoteContent').html(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("An error occurred: ", error);
+                    console.log(xhr.responseText);
+
+                    // Set toastr options
+                    toastr.options = {
+                        "closeButton": true,
+                        "progressBar": true,
+                        "positionClass": "toast-top-right",
+                        "timeOut": "3000",
+                        "preventDuplicates": true,
+                        "extendedTimeOut": "1000"
+                    };
+
+                    if (xhr.status === 404) {
+                        // Check if the response has a message
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            if (response.message) {
+                                toastr.error(response.message); // Display the custom message
+                            } else {
+                                toastr.error("An error occurred."); // Fallback message
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse JSON response: ", e);
+                            toastr.error("An unexpected error occurred.");
+                        }
+                    } else {
+                        // Handle other status codes and parse response
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            var errorMessage = "";
+
+                            if (response.errors) {
+                                $.each(response.errors, function(field, messages) {
+                                    $.each(messages, function(index, message) {
+                                        errorMessage +=
+                                            `<div class="container">${message}<br></div>`;
+                                    });
+                                });
+                                toastr.error(errorMessage);
+                            } else {
+                                toastr.error(
+                                "An unexpected error occurred."); // Fallback for other errors
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse JSON response: ", e);
+                            toastr.error("An unexpected error occurred.");
+                        }
+                    }
                 }
             });
         });

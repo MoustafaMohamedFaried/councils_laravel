@@ -1,10 +1,10 @@
 <div class="container">
     <div class="d-flex row">
         @foreach ($data['invitations'] as $user_id => $user_name)
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <label class="form-label">{{ $user_name }}</label>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="status[{{ $user_id }}]"
                         @if (isset($data['attendance'][$user_id]) && $data['attendance'][$user_id] == 1) checked @endif id="attend_{{ $user_id }}"
@@ -12,7 +12,7 @@
                     <label class="form-check-label" for="attend_{{ $user_id }}">Attend</label>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="status[{{ $user_id }}]"
                         @if (isset($data['attendance'][$user_id]) && $data['attendance'][$user_id] == 2) checked @endif id="absent_{{ $user_id }}"
