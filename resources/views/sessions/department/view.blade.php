@@ -153,7 +153,9 @@
                         <div class="modal-body">
                             <select class="form-select form-select mb-3" name="status" id="Status">
                                 <option disabled selected value>Choose option</option>
-                                <option value="1">Accepted</option>
+                                @if ($data['session']->start_time->toDateString() >= now()->toDateString())
+                                    <option value="1">Accepted</option>
+                                @endif
                                 <option value="2">Rejected</option>
                                 <option value="3">Rejected with reason</option>
                             </select>
