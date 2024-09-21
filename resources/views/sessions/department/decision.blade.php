@@ -2,7 +2,7 @@
     @foreach ($data['topics'] as $topic_id => $topic_title)
         <div class="mb-3">
             <p>
-                <b>Topic title:</b>
+                <b class="text-danger">Topic title:</b>
                 {{ $topic_title }}
             </p>
 

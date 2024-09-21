@@ -26,7 +26,7 @@ class SessionDepartmentController extends Controller
         $this->middleware('auth');
         $this->middleware('is_active');
         // $this->middleware('is_super_or_system_admin')->except('index', 'show', 'getFacultiesByHeadquarter');
-        $this->middleware('ajax_only')->except('index', 'create', 'edit', 'show', 'startSession');
+        $this->middleware('ajax_only')->except('index', 'create', 'edit', 'show', 'startSession', 'sessionReport');
     }
     /**
      * Display a listing of the resource.
@@ -353,7 +353,7 @@ class SessionDepartmentController extends Controller
     {
         $session = SessionDepartment::findOrFail($session_id);
         $sessionUsers = SessionDepartmentUser::where('session_department_user.session_id', $session_id)
-            ->join('users', 'users.id', 'session_department_user.user_id')
+            ->join('users', 'users.id', '=', 'session_department_user.user_id')
             ->select('users.name as user_name', 'users.id as user_id')
             ->get();
 
@@ -400,8 +400,8 @@ class SessionDepartmentController extends Controller
     {
         $session = SessionDepartment::findOrFail($session_id);
         $sessionTopics = SessionDepartmentTopic::where('session_department_topics.session_id', $session_id)
-            ->join('topic_agendas', 'topic_agendas.id', 'session_department_topics.agenda_id')
-            ->join('topics', 'topics.id', 'topic_agendas.topic_id')
+            ->join('topic_agendas', 'topic_agendas.id', '=', 'session_department_topics.agenda_id')
+            ->join('topics', 'topics.id', '=', 'topic_agendas.topic_id')
             ->select('topics.title as topic_title', 'topic_agendas.id as topic_id')
             ->get();
 
@@ -448,8 +448,8 @@ class SessionDepartmentController extends Controller
         $session = SessionDepartment::findOrFail($session_id);
 
         $sessionDecisions = SessionDepartmentDecision::where('session_department_decisions.session_id', $session_id)
-            ->join('topic_agendas', 'topic_agendas.id', 'session_department_decisions.agenda_id')
-            ->join('topics', 'topics.id', 'topic_agendas.topic_id')
+            ->join('topic_agendas', 'topic_agendas.id', '=', 'session_department_decisions.agenda_id')
+            ->join('topics', 'topics.id', '=', 'topic_agendas.topic_id')
             ->select('topics.title as topic_title', 'session_department_decisions.id as decision_id', 'session_department_decisions.decision as decision')
             ->get();
 
@@ -466,7 +466,7 @@ class SessionDepartmentController extends Controller
         $sessionDecisionVote = SessionDepartmentDecisionVote::where('session_id', $session_id)->get();
 
         $voteDecisionData = $sessionDecisionVote->mapWithKeys(function ($item) {
-            return [$item->user_id => $item->status];
+            return [$item->decision_id . ',' . $item->user_id => $item->status];
         });
 
         $invitations = $sessionUsers->pluck('user_name', 'user_id')->toArray();
@@ -483,8 +483,9 @@ class SessionDepartmentController extends Controller
 
     public function saveVote(Request $request, $session_id)
     {
-        // delete decision if found
-        SessionDepartmentDecisionVote::where('session_id', $session_id)->delete();
+        // dd($request->all());
+
+        SessionDepartmentDecisionVote::where('session_id', $session_id)->delete(); // delete decision if found
 
         if (is_array($request->input('vote'))) {
             foreach ($request->input('vote') as $record) {
@@ -497,7 +498,6 @@ class SessionDepartmentController extends Controller
             }
         }
 
-        // dd($decision);
 
         SessionDepartmentDecisionVote::insert($decision);
 
@@ -513,5 +513,81 @@ class SessionDepartmentController extends Controller
         ]);
 
         return response()->json(['message' => 'Actual time saved successfully']);
+    }
+
+    public function sessionReport($session_id)
+    {
+        $session = SessionDepartment::findOrFail($session_id);
+
+        $sessionDecisions = SessionDepartmentDecision::where('session_department_decisions.session_id', $session_id)
+            ->join('topic_agendas', 'topic_agendas.id', '=', 'session_department_decisions.agenda_id')
+            ->join('topics as sup_topic', 'sup_topic.id', '=', 'topic_agendas.topic_id')
+            ->join('topics as main_topic', 'main_topic.id', '=', 'sup_topic.main_topic_id')
+            ->select(
+                'sup_topic.title as topic_title',
+                'main_topic.title as main_topic',
+                'session_department_decisions.decision as decision'
+            )
+            ->get();
+
+        $topicWithDecision = []; // Initialize the array outside the loop
+        foreach ($sessionDecisions as $decision) {
+            $mainTopic = $decision['main_topic']; // Get the main topic
+            $topicTitle = $decision['topic_title'];
+            $decisionText = $decision['decision'];
+
+            // Check if the main topic already exists in the array
+            if (!isset($topicWithDecision[$mainTopic])) {
+                // If not, create a new entry for the main topic
+                $topicWithDecision[$mainTopic] = [];
+            }
+
+            // Append the topic title and decision as an associative array
+            $topicWithDecision[$mainTopic][] = [
+                'topic_title' => $topicTitle,
+                'decision' => $decisionText,
+            ];
+        }
+
+        // Now to format the output as desired
+        $formattedTopicWithDecision = [];
+        foreach ($topicWithDecision as $mainTopic => $topics) {
+            $formattedTopicWithDecision[] = [
+                $mainTopic => $topics,
+            ];
+        }
+
+        // dd($formattedTopicWithDecision);
+
+        $sessionAttendance = SessionDepartmentAttendance::where('session_id', $session_id)->get();
+        $sessionDecisionVote = SessionDepartmentDecisionVote::where('session_id', $session_id)->get();
+
+        if ($sessionAttendance->isEmpty()) {
+            $message = 'No attendance taken for this session';
+            if (request()->ajax()) {
+                return response()->json(['message' => $message], 404);
+            } else {
+                return abort(404);
+            }
+        } elseif ($sessionDecisions->isEmpty()) {
+            $message = 'No decisions taken for this session';
+
+            if (request()->ajax()) {
+                return response()->json(['message' => $message], 404);
+            } else {
+                return abort(404);
+            }
+        } elseif ($sessionDecisionVote->isEmpty()) {
+            $message = 'No votes taken this session';
+            if (request()->ajax()) {
+                return response()->json(['message' => $message], 404);
+            } else {
+                return abort(404);
+            }
+        }
+
+        // dd($session);
+        $data = [];
+        return view('sessions.department.session_report', compact('data'));
     }
 }

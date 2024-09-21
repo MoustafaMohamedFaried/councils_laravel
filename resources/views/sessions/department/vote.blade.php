@@ -2,11 +2,11 @@
     @foreach ($data['decision'] as $decision)
         <div class="mb-3">
             <p>
-                <b>Topic title:</b>
+                <b class="text-danger">Topic title:</b>
                 {{ $decision['topic_title'] }}
             </p>
 
-            <input type="hidden" id="DecisionId" value="{{ $decision['decision_id'] }}">
+            {{-- @dump($decision['decision_id']) --}}
 
             <div class="form-floating mb-3">
                 <textarea class="form-control" id="Decision" placeholder="Decision" readonly style="height: 100px">{{ $decision['decision'] }}</textarea>
@@ -20,16 +20,20 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="status[{{ $user_id }}]"
-                                @if (isset($data['vote'][$user_id]) && $data['vote'][$user_id] == 1) checked @endif id="accept_{{ $user_id }}"
+                            <input class="form-check-input" type="radio"
+                                name="status[{{ $user_id }}','{{ $decision['decision_id'] }}]"
+                                @if (isset($data['vote'][$decision['decision_id'] . ',' . $user_id]) &&
+                                        $data['vote'][$decision['decision_id'] . ',' . $user_id] == 1) checked @endif id="accept_{{ $user_id }}"
                                 value="accept_{{ $user_id }}">
                             <label class="form-check-label" for="accept_{{ $user_id }}">Accept</label>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="status[{{ $user_id }}]"
-                                @if (isset($data['vote'][$user_id]) && $data['vote'][$user_id] == 2) checked @endif id="reject_{{ $user_id }}"
+                            <input class="form-check-input" type="radio"
+                                name="status[{{ $user_id }}','{{ $decision['decision_id'] }}]"
+                                @if (isset($data['vote'][$decision['decision_id'] . ',' . $user_id]) &&
+                                        $data['vote'][$decision['decision_id'] . ',' . $user_id] == 2) checked @endif id="reject_{{ $user_id }}"
                                 value="reject_{{ $user_id }}">
                             <label class="form-check-label" for="reject_{{ $user_id }}">Reject</label>
                         </div>
@@ -59,28 +63,35 @@
 
     $("#saveDecision").click(function(e) {
         e.preventDefault();
-        var decisionId = $("#DecisionId").val();
 
         var voteData = [];
 
-        // Loop through each user to get the selected status and user_id
+        // Loop through each selected radio button to get the selected status, user_id, and corresponding decision_id
         $("input[type=radio]:checked").each(function() {
-            var userId = $(this).attr('name').match(/\d+/)[
-                0]; // Extract user ID from the 'name' attribute
-            var status = 0;
+            // Extract user_id and decision_id from the 'name' attribute
+            var nameAttr = $(this).attr('name');
 
-            // Check the id of the selected radio button to determine the status
-            if ($(this).attr('id').includes('accept')) {
-                status = 1; // accept status
-            } else if ($(this).attr('id').includes('reject')) {
-                status = 2; // reject status
+            var matches = nameAttr.match(/status\[(\d+)\',\'(\d+)\]/);
+
+            if (matches) {
+                var userId = matches[1]; // user_id
+                var decisionId = matches[2]; // decision_id
+
+                // Check the id of the selected radio button to determine the status
+                var status = 0;
+                if ($(this).attr('id').includes('accept')) {
+                    status = 1; // accept status
+                } else if ($(this).attr('id').includes('reject')) {
+                    status = 2; // reject status
+                }
+
+                // Push the vote data into the array
+                voteData.push({
+                    decision_id: decisionId,
+                    user_id: userId,
+                    status: status
+                });
             }
-
-            voteData.push({
-                decision_id: decisionId,
-                user_id: userId,
-                status: status
-            });
         });
 
 

@@ -35,7 +35,7 @@
                     data-bs-target="#voteModal">Vote</button>
             </div>
             <div class="col-md-2">
-                <button class="btn btn-primary" id="reportBtn">Report</button>
+                <a class="btn btn-primary" role="button" id="reportBtn">Report</a>
             </div>
         </div>
 
@@ -394,6 +394,69 @@
                         }
                     } else {
                         // Handle other status codes and parse response
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            var errorMessage = "";
+
+                            if (response.errors) {
+                                $.each(response.errors, function(field, messages) {
+                                    $.each(messages, function(index, message) {
+                                        errorMessage +=
+                                            `<div class="container">${message}<br></div>`;
+                                    });
+                                });
+                                toastr.error(errorMessage);
+                            } else {
+                                toastr.error(
+                                    "An unexpected error occurred."); // Fallback for other errors
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse JSON response: ", e);
+                            toastr.error("An unexpected error occurred.");
+                        }
+                    }
+                }
+            });
+        });
+
+        $(document).on('click', '#reportBtn', function(e) {
+            e.preventDefault();
+            $.ajax({
+                type: "GET",
+                url: `/sessions-departments/session-report/${sessionId}`,
+                success: function(response) {
+                    // Redirect to the session report page on success
+                    window.location.href = `/sessions-departments/session-report/${sessionId}`;
+                },
+                error: function(xhr, status, error) {
+                    console.error("An error occurred: ", error);
+                    console.log(xhr.responseText);
+
+                    // Set toastr options
+                    toastr.options = {
+                        "closeButton": true,
+                        "progressBar": true,
+                        "positionClass": "toast-top-right",
+                        "timeOut": "3000",
+                        "preventDuplicates": true,
+                        "extendedTimeOut": "1000"
+                    };
+
+                    if (xhr.status === 404) {
+                        // Check if the response has a message and display it
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            if (response.message) {
+                                toastr.error(response.message); // Display the specific error message
+                            } else {
+                                toastr.error("An error occurred."); // Fallback error message
+                            }
+                        } catch (e) {
+                            console.error("Failed to parse JSON response: ", e);
+                            toastr.error("An unexpected error occurred.");
+                        }
+                    } else {
+                        // Handle other status codes and error scenarios
                         try {
                             var response = JSON.parse(xhr.responseText);
                             var errorMessage = "";
