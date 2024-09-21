@@ -342,10 +342,14 @@ class SessionDepartmentController extends Controller
             'sessionUsers' => $sessionUsers,
         ];
 
-        if ($session->start_time->lessThanOrEqualTo(now())) {
-            return view('sessions.department.start_session', compact('data'));
+        if ($session->actual_end_time) {
+            abort(403,'Session ended');
         } else {
-            abort(403, "Session doesn't start yet.");
+            if ($session->start_time->lessThanOrEqualTo(now())) {
+                return view('sessions.department.start_session', compact('data'));
+            } else {
+                abort(403, "Session doesn't start yet.");
+            }
         }
     }
 
@@ -556,7 +560,12 @@ class SessionDepartmentController extends Controller
             'members' => $sessionMembers,
             'decisions' => $sessionDecisions
         ];
-        return view('sessions.department.session_report', compact('data'));
+
+        if ($session->actual_end_time) {
+            abort(403,'Session ended');
+        } else {
+            return view('sessions.department.session_report', compact('data'));
+        }
     }
 
     // handle decision for using at session report
@@ -672,5 +681,24 @@ class SessionDepartmentController extends Controller
         ];
 
         return $ordinals[$number] ?? $number;
+    }
+
+    public function decisionApproval(Request $request, $session_id)
+    {
+        $session = SessionDepartment::findOrFail($session_id);
+        $sessionDecisions = SessionDepartmentDecision::where('session_id',$session_id)->get();
+
+        foreach ($sessionDecisions as $decision) {
+            $decision->update([
+                'approval' => $request->approval,
+                'updated_at' => now()
+            ]);
+        }
+
+        $session->update([
+            'actual_end_time' => now(),
+        ]);
+
+        return response()->json(['message' => 'Decision saved successfully'],200);
     }
 }

@@ -5,8 +5,38 @@
 @endsection
 
 @section('content')
+
+    @if (auth()->id() == $data['session']->responsible_id)
+        <!-- take decision approval from head of department -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#approvalModal">
+            اعتماد المحضر
+        </button>
+    @endif
+
+    <!-- Approval modal -->
+    <div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="approvalModalLabel"> اعتماد محضر جلسة مجلس القسم</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <select class="form-select" id="approval">
+                        <option disabled selected selected>اختر</option>
+                        <option value="1">موافقة</option>
+                        <option value="2">رفض</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">الغاء</button>
+                    <button type="button" class="btn btn-primary" id="approvalSubmitBtn">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="reportContainer container text-center" dir="rtl">
-        
 
         <h1 class="mb-4">محضر الجلسة رقم {{ $data['session']->code }} لقسم {{ $data['session']->department->ar_name }}
             لكلية
@@ -59,7 +89,7 @@
                     <div style="text-align: start">
                         <h5>الموضوع {{ \App\Http\Controllers\SessionDepartmentController::arabicOrdinal($i) }} :
                             {{ $sup_topic['topic_title'] }}</h5>
-                        <p>التصويت علي القرار:  {{ $sup_topic['decision_status'] }}</p>
+                        <p>التصويت علي القرار: {{ $sup_topic['decision_status'] }}</p>
                     </div>
                 @endforeach
             @endforeach
@@ -92,4 +122,75 @@
             margin-bottom: 15px;
         }
     </style>
+
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        var sessionId = `{{ $data['session']->id }}`;
+
+        $("#approvalSubmitBtn").click(function(e) {
+            e.preventDefault();
+            var approval = $("#approval").val();
+            alert(approval);
+            $.ajax({
+                type: "GET",
+                url: `/sessions-departments/decision-approval/${sessionId}`,
+                data: {
+                    approval: approval
+                },
+                success: function(response) {
+                    toastr.options = {
+                        "closeButton": true,
+                        "progressBar": true,
+                        "positionClass": "toast-top-right",
+                        "timeOut": "1500",
+                        "preventDuplicates": true,
+                        "extendedTimeOut": "1000"
+                    };
+
+                    toastr.success(response.message);
+
+                    // Redirect after a short delay to allow the toastr to be visible
+                    setTimeout(function() {
+                        window.location.href = `/sessions-departments/${sessionId}`;
+                    }, 1500); // Delay in milliseconds (match this with the timeOut value)
+                },
+                error: function(xhr, status, error) {
+                    console.error("An error occurred: ", error);
+                    console.log(xhr.responseText);
+
+                    toastr.options = {
+                        "closeButton": true,
+                        "progressBar": true,
+                        "positionClass": "toast-top-right",
+                        "timeOut": "3000",
+                        "preventDuplicates": true,
+                        "extendedTimeOut": "1000"
+                    };
+
+                    // Parse the response JSON
+                    var response = JSON.parse(xhr.responseText);
+
+                    // Concatenate all error messages into a single string
+                    var errorMessage = "";
+
+                    if (response.errors) {
+                        $.each(response.errors, function(field, messages) {
+                            $.each(messages, function(index, message) {
+                                errorMessage +=
+                                    `<div class="container">${message}<br></div>`;
+                            });
+                        });
+
+                        // Display all error messages in a single toastr notification
+                        toastr.error(errorMessage);
+                    }
+                }
+            });
+        });
+    </script>
 @endsection
