@@ -345,7 +345,7 @@ class SessionDepartmentController extends Controller
         if ($session->start_time->lessThanOrEqualTo(now())) {
             return view('sessions.department.start_session', compact('data'));
         } else {
-            abort(403,"Session doesn't start yet.");
+            abort(403, "Session doesn't start yet.");
         }
     }
 
@@ -479,7 +479,7 @@ class SessionDepartmentController extends Controller
     public function saveVote(Request $request, $session_id)
     {
         // delete decision if found
-        SessionDepartmentDecisionVote::where('session_id',$session_id)->delete();
+        SessionDepartmentDecisionVote::where('session_id', $session_id)->delete();
 
         if (is_array($request->input('vote'))) {
             foreach ($request->input('vote') as $record) {
@@ -497,5 +497,16 @@ class SessionDepartmentController extends Controller
         SessionDepartmentDecisionVote::insert($decision);
 
         return response()->json(['message' => 'Vote saved successfully'], 200);
+    }
+
+    public function saveTime($session_id)
+    {
+        $session = SessionDepartment::findOrFail($session_id);
+
+        $session->update([
+            'actual_start_time' => now()->format('Y-m-d H:i')
+        ]);
+
+        return response()->json(['message' => 'Actual time saved successfully']);
     }
 }
