@@ -26,7 +26,7 @@ class SessionDepartmentController extends Controller
         $this->middleware('auth');
         $this->middleware('is_active');
         // $this->middleware('is_super_or_system_admin')->except('index', 'show', 'getFacultiesByHeadquarter');
-        $this->middleware('ajax_only')->except('index', 'create', 'edit', 'show', 'startSession', 'sessionReport');
+        $this->middleware('ajax_only')->except('index', 'create', 'edit', 'show', 'startSession', 'sessionReport', 'reportDetails');
     }
     /**
      * Display a listing of the resource.
@@ -692,6 +692,7 @@ class SessionDepartmentController extends Controller
             ->join('users', 'users.id', '=', 'session_department_attendances.user_id')
             ->join('positions', 'positions.id', '=', 'users.position_id')
             ->select(
+                'users.id as user_id',
                 'users.name as user_name',
                 'positions.ar_name as position',
                 'session_department_attendances.status as status',
@@ -768,5 +769,41 @@ class SessionDepartmentController extends Controller
         ]);
 
         return response()->json(['message' => 'Decision saved successfully'], 200);
+    }
+
+    public function reportDetails($session_id)
+    {
+        // dd("sada");
+        $session = SessionDepartment::findOrFail($session_id);
+
+        $sessionDecisions = $this->instializeDecisions($session_id);
+        $sessionMembers = $this->instializeMembers($session_id);
+
+        $data = [
+            'session' => $session,
+            'members' => $sessionMembers,
+            'decisions' => $sessionDecisions
+        ];
+
+        // Extract user IDs from the session members array
+        $memberIds = array_column($sessionMembers, 'user_id');
+
+        // Check for end time, role permissions, and whether auth()->id() is in $sessionMembers
+        if ($session->actual_end_time) {
+            if (
+                auth()->user()->hasRole('Super Admin') || auth()->user()->hasRole('System Admin') ||
+                in_array(auth()->id(), $memberIds) || auth()->id() == $session->responsible_id || auth()->id() == $session->decision_by
+            ) {
+                // Proceed to show the report
+                return view('sessions.department.report_details', compact('data'));
+            } else {
+                // Forbidden access if none of the conditions are met
+                abort(403);
+            }
+        } else {
+            // Unauthorized access if the session has not ended
+            abort(401);
+        }
+
     }
 }

@@ -88,6 +88,13 @@
                                                                 id="startSessionBtn">Start Session</a>
                                                         </li>
                                                     @endif
+                                                    @if ($session->actual_end_time)
+                                                        <li>
+                                                            <a class="dropdown-item text-primary"
+                                                                href="{{ route('sessions-departments.report-details', $session->id) }}"
+                                                                id="reportDetailsBtn">Report Details</a>
+                                                        </li>
+                                                    @endif
                                                 </ul>
                                             </div>
                                         </td>

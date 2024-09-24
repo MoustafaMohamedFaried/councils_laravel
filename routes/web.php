@@ -88,6 +88,7 @@ Route::prefix('sessions-departments')->controller(SessionDepartmentController::c
     Route::post('/save-vote/{session_id}', 'saveVote')->name('sessions-departments.save-vote');
     Route::get('/session-report/{session_id}', 'sessionReport')->name('sessions-departments.session-report');
     Route::get('/decision-approval/{session_id}', 'decisionApproval')->name('sessions-departments.decision-approval');
+    Route::get('/report-details/{session_id}', 'reportDetails')->name('sessions-departments.report-details');
 });
 Route::resource('sessions-departments', SessionDepartmentController::class);
 
