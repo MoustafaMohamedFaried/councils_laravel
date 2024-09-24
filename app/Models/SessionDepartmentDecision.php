@@ -14,6 +14,8 @@ class SessionDepartmentDecision extends Model
         'session_id',
         'agenda_id',
         'decision',
+        'decision_status',
+        'approval',
     ];
 
     public function session(): BelongsTo

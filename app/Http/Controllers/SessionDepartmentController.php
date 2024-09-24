@@ -343,7 +343,7 @@ class SessionDepartmentController extends Controller
         ];
 
         if ($session->actual_end_time) {
-            abort(403,'Session ended');
+            abort(403, 'Session ended');
         } else {
             if ($session->start_time->lessThanOrEqualTo(now())) {
                 return view('sessions.department.start_session', compact('data'));
@@ -489,10 +489,16 @@ class SessionDepartmentController extends Controller
     {
         // dd($request->all());
 
+        // Delete existing decisions for the given session to start fresh
         SessionDepartmentDecisionVote::where('session_id', $session_id)->delete(); // delete decision if found
 
+        $decision = []; // Initialize the decision array
+
+        // Check if the input 'vote' is an array
         if (is_array($request->input('vote'))) {
+            // Loop through each record in the input votes
             foreach ($request->input('vote') as $record) {
+                // Build the decision array with session_id, decision_id, user_id, and status
                 $decision[] = [
                     'session_id' => $session_id,
                     'decision_id' => $record['decision_id'],
@@ -503,8 +509,70 @@ class SessionDepartmentController extends Controller
         }
 
 
+        // Initialize an array to group decisions by decision_id
+        $groupedDecisions = [];
+        foreach ($decision as $record) {
+            $decisionId = $record['decision_id'];
+            $status = $record['status'];
+
+            // Initialize the array for the decision_id if it doesn't exist
+            if (!isset($groupedDecisions[$decisionId])) {
+                $groupedDecisions[$decisionId] = []; // Create an empty array for this decision_id
+            }
+
+            // Append the status to the respective decision_id
+            $groupedDecisions[$decisionId][] = $status;
+        }
+
+
+        // Initialize an array to hold the results for each decision_id
+        $results = [];
+        foreach ($groupedDecisions as $decisionId => $statuses) {
+            $count1 = 0; // Count of status 1
+            $count2 = 0; // Count of status 2
+
+            // Count occurrences of 1's and 2's
+            foreach ($statuses as $status) {
+                if ($status == 1) {
+                    $count1++; // Increment count for status 1
+                } elseif ($status == 2) {
+                    $count2++; // Increment count for status 2
+                }
+            }
+
+            // Determine the result based on the counts
+            if ($count1 > 0 && $count2 === 0) {
+                // All statuses are 1's
+                $results[$decisionId] = 1;
+            } elseif ($count2 > 0 && $count1 === 0) {
+                // All statuses are 2's
+                $results[$decisionId] = 2;
+            } elseif ($count1 > $count2) {
+                // More 1's than 2's
+                $results[$decisionId] = 3;
+            } elseif ($count2 > $count1) {
+                // More 2's than 1's
+                $results[$decisionId] = 4;
+            } else {
+                // Equal number of 1's and 2's
+                $results[$decisionId] = 5;
+            }
+        }
+
+        // Display the decision array and results for debugging
+        // dd($results);
+
+        foreach ($results as $decision_id => $status) {
+            $sessionDecision = SessionDepartmentDecision::findOrFail($decision_id);
+            $sessionDecision->update([
+                'decision_status' => $status
+            ]);
+        }
+
+        // Insert the new decisions into the database
         SessionDepartmentDecisionVote::insert($decision);
 
+        // Return a success response
         return response()->json(['message' => 'Vote saved successfully'], 200);
     }
 
@@ -562,7 +630,7 @@ class SessionDepartmentController extends Controller
         ];
 
         if ($session->actual_end_time) {
-            abort(403,'Session ended');
+            abort(403, 'Session ended');
         } else {
             return view('sessions.department.session_report', compact('data'));
         }
@@ -686,7 +754,7 @@ class SessionDepartmentController extends Controller
     public function decisionApproval(Request $request, $session_id)
     {
         $session = SessionDepartment::findOrFail($session_id);
-        $sessionDecisions = SessionDepartmentDecision::where('session_id',$session_id)->get();
+        $sessionDecisions = SessionDepartmentDecision::where('session_id', $session_id)->get();
 
         foreach ($sessionDecisions as $decision) {
             $decision->update([
@@ -699,6 +767,6 @@ class SessionDepartmentController extends Controller
             'actual_end_time' => now(),
         ]);
 
-        return response()->json(['message' => 'Decision saved successfully'],200);
+        return response()->json(['message' => 'Decision saved successfully'], 200);
     }
 }
