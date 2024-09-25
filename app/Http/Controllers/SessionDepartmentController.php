@@ -18,6 +18,7 @@ use DateTime;
 use Dotenv\Exception\ValidationException;
 // use Illuminate\Http\Client\Request;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SessionDepartmentController extends Controller
 {
@@ -33,9 +34,37 @@ class SessionDepartmentController extends Controller
      */
     public function index()
     {
-        $sessions = SessionDepartment::paginate(10);
+        $user = auth()->user(); // Get the authenticated user
+
+        // Start the query for SessionDepartment
+        $query = SessionDepartment::query();
+
+        // Fetch sessions based on user's role and position
+        if ($user->hasRole('Super Admin') || $user->hasRole('System Admin')) {
+            // If the user has the role of Super Admin or System Admin, show all sessions
+        } elseif (in_array($user->position_id, [2, 3])) {
+            // For specific positions, fetch department IDs
+            $departmentCouncilIds = DB::table('department_councils')
+                ->where('user_id', $user->id)
+                ->pluck('department_id')->toArray();
+
+            // Filter sessions based on the department IDs and status
+            $query->whereIn('department_id', $departmentCouncilIds)
+                ->whereIn('status', [0, 1, 2, 3]);
+        } else {
+            // For other users, check if they are invited to sessions
+            $query->where('session_departments.status', 1)
+                ->join('session_department_user', 'session_department_user.session_id', '=', 'session_departments.id')
+                ->where('session_department_user.user_id', $user->id)
+                ->select('session_departments.*');
+        }
+
+        // Get the paginated result
+        $sessions = $query->paginate(10);
+
+        // Prepare data for the view
         $data = [
-            'sessions' => $sessions
+            'sessions' => $sessions,
         ];
         return view('sessions.department.index', compact('data'));
     }
@@ -804,6 +833,5 @@ class SessionDepartmentController extends Controller
             // Unauthorized access if the session has not ended
             abort(401);
         }
-
     }
 }
