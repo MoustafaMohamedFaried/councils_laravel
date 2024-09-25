@@ -181,16 +181,4 @@ class TopicAgendaController extends Controller
             ], 422);
         }
     }
-
-    public function getAgendasByDepartment($department_id)
-    {
-        $agendasData = TopicAgenda::where('topic_agendas.department_id', $department_id)
-            ->join('departments', 'departments.id', '=', 'topic_agendas.department_id')
-            ->select('topic_agendas.id as agenda_id', 'topic_agendas.name as agenda_name');
-
-        // array like [agenda_id => agenda_name]
-        $agendas = array_combine($agendasData->pluck('agenda_id')->toArray(), $agendasData->pluck('agenda_name')->toArray());
-
-        return response()->json($agendas);
-    }
 }

@@ -69,9 +69,9 @@ Route::prefix('topics')->controller(TopicController::class)->group(function () {
 Route::resource('topics', TopicController::class);
 
 
-Route::prefix('agendas')->controller(TopicAgendaController::class)->group(function () {
-    Route::get('/getAgendasByDepartment/{department_id}', 'getAgendasByDepartment')->name('agendas.getAgendasByDepartment');
-});
+// Route::prefix('agendas')->controller(TopicAgendaController::class)->group(function () {
+//     Route::get('/getAgendasByDepartment/{department_id}', 'getAgendasByDepartment')->name('agendas.getAgendasByDepartment');
+// });
 Route::resource('agendas', TopicAgendaController::class);
 
 
@@ -89,6 +89,7 @@ Route::prefix('sessions-departments')->controller(SessionDepartmentController::c
     Route::get('/session-report/{session_id}', 'sessionReport')->name('sessions-departments.session-report');
     Route::get('/decision-approval/{session_id}', 'decisionApproval')->name('sessions-departments.decision-approval');
     Route::get('/report-details/{session_id}', 'reportDetails')->name('sessions-departments.report-details');
+    Route::get('/getAgendasByDepartment/{department_id}', 'getAgendasByDepartment')->name('sessions-departments.getAgendasByDepartment');
 });
 Route::resource('sessions-departments', SessionDepartmentController::class);
 

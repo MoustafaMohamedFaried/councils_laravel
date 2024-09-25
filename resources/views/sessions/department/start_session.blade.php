@@ -7,17 +7,19 @@
 @section('content')
     <div class="container">
 
-        <div class="stopwatch">
-            <div id="time">00:00:00</div>
-            <div class="buttons">
-                @if (!$data['session']->actual_start_time)
-                    <button id="start_session">Start</button>
-                @endif
-                <button id="start" @if (!$data['session']->actual_start_time) class="d-none" @endif>Start</button>
-                <button id="stop">Stop</button>
-                <button id="reset">Reset</button>
+        @if (auth()->id() == $data['session']->created_by)
+            <div class="stopwatch">
+                <div id="time">00:00:00</div>
+                <div class="buttons">
+                    @if (!$data['session']->actual_start_time)
+                        <button id="start_session">Start</button>
+                    @endif
+                    <button id="start" @if (!$data['session']->actual_start_time) class="d-none" @endif>Start</button>
+                    <button id="stop">Stop</button>
+                    <button id="reset">Reset</button>
+                </div>
             </div>
-        </div>
+        @endif
 
 
         <div class="row text-center">
@@ -471,7 +473,7 @@
                                 toastr.error(errorMessage);
                             } else {
                                 toastr.error(
-                                "An unexpected error occurred."); // Fallback for other errors
+                                    "An unexpected error occurred."); // Fallback for other errors
                             }
                         } catch (e) {
                             console.error("Failed to parse JSON response: ", e);

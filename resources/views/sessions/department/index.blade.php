@@ -85,7 +85,13 @@
                                                         <li>
                                                             <a class="dropdown-item text-info"
                                                                 href="{{ route('sessions-departments.start-session', $session->id) }}"
-                                                                id="startSessionBtn">Start Session</a>
+                                                                id="startSessionBtn">
+                                                                @if (auth()->id() == $session->created_by)
+                                                                    Start Session
+                                                                @else
+                                                                    Enter Session
+                                                                @endif
+                                                            </a>
                                                         </li>
                                                     @endif
                                                     @if ($session->actual_end_time)

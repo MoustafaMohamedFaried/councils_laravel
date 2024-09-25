@@ -834,4 +834,17 @@ class SessionDepartmentController extends Controller
             abort(401);
         }
     }
+
+    public function getAgendasByDepartment($department_id)
+    {
+        $agendasData = TopicAgenda::where('topic_agendas.department_id', $department_id)
+            ->where('topic_agendas.status', 1) // where status of agenda is accepted
+            ->join('departments', 'departments.id', '=', 'topic_agendas.department_id')
+            ->select('topic_agendas.id as agenda_id', 'topic_agendas.name as agenda_name');
+
+        // array like [agenda_id => agenda_name]
+        $agendas = array_combine($agendasData->pluck('agenda_id')->toArray(), $agendasData->pluck('agenda_name')->toArray());
+
+        return response()->json($agendas);
+    }
 }

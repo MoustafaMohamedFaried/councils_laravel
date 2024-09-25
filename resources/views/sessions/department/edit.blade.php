@@ -251,7 +251,7 @@
 
                 // return topics from department_id
                 $.ajax({
-                    url: `/agendas/getAgendasByDepartment/${selectedDepartmentId}`,
+                    url: `/sessions-departments/getAgendasByDepartment/${selectedDepartmentId}`,
                     type: 'GET',
                     success: function(agendas) {
                         // Clear the previous options
@@ -302,7 +302,7 @@
 
             // return topics from department_id
             $.ajax({
-                url: `/agendas/getAgendasByDepartment/${DepartmentsId}`,
+                url: `/sessions-departments/getAgendasByDepartment/${DepartmentsId}`,
                 type: 'GET',
                 success: function(agendas) {
                     // Clear the previous options
@@ -348,7 +348,7 @@
 
                 // return topics from department_id
                 $.ajax({
-                    url: `/agendas/getAgendasByDepartment/${departmentId}`,
+                    url: `/sessions-departments/getAgendasByDepartment/${departmentId}`,
                     type: 'GET',
                     success: function(agendas) {
                         // Clear the previous options
