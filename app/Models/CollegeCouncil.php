@@ -16,4 +16,9 @@ class CollegeCouncil extends Model
     {
         return $this->belongsTo(SessionDepartment::class,'session_id');
     }
+
+    public function agenda() : BelongsTo
+    {
+        return $this->belongsTo(TopicAgenda::class,'agenda_id');
+    }
 }

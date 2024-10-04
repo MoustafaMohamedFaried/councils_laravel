@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 
 class CollegeCouncilController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('is_active');
+        // $this->middleware('is_super_or_system_admin')->except('index', 'show', 'getFacultiesByHeadquarter');
+        $this->middleware('ajax_only')->except('index', 'edit');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -65,33 +72,60 @@ class CollegeCouncilController extends Controller
 
         CollegeCouncil::insert($insertWithTopics);
 
+        $record = CollegeCouncil::with(['session.responsible'])->findOrFail($collegeCouncil->id);
 
         return response()->json([
             'message' => "Session report uploaded successfully",
-            'data' => CollegeCouncil::with(['session.responsible'])->findOrFail($collegeCouncil->id),
+            'data' => $record,
         ], 200);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(CollegeCouncil $collegeCouncil)
+    public function show($session_id)
     {
-        //
+        $session = SessionDepartment::findOrFail($session_id);
+        $collegeCouncil = CollegeCouncil::where('session_id', $session_id)
+            ->whereNotNull('agenda_id')
+            ->get();
+
+        // dd($collegeCouncil->toArray());
+
+        $data = [
+            'session' => $session,
+            'collegeCouncil' => $collegeCouncil
+        ];
+
+        return view("sessions.college_council.view", compact('data'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(CollegeCouncil $collegeCouncil)
+    public function edit($collegeCouncil_id)
     {
-        //
+        $collegeCouncil = CollegeCouncil::findOrFail($collegeCouncil_id);
+
+        $collegeCouncilWithTopics = CollegeCouncil::where('session_id', $collegeCouncil->session_id)
+            ->whereNotNull('agenda_id')
+            // ->with('agenda')
+            ->get();
+
+        // dd($collegeCouncilWithTopics->toArray(), $collegeCouncil->toArray());
+
+        $data = [
+            'collegeCouncil' => $collegeCouncil,
+            'collegeCouncilWithTopics' => $collegeCouncilWithTopics
+        ];
+
+        return view('sessions.college_council.edit', compact('data'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, CollegeCouncil $collegeCouncil)
+    public function update(Request $request, $collegeCouncil_id)
     {
         //
     }
@@ -99,7 +133,7 @@ class CollegeCouncilController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CollegeCouncil $collegeCouncil)
+    public function destroy($collegeCouncil_id)
     {
         //
     }

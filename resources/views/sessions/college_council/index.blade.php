@@ -38,15 +38,14 @@
                                         <td class="text-center">{{ $collegeCouncil->session->responsible->name }}</td>
                                         <td class="text-center">
                                             <a class="btn btn-secondary btn-sm" role="button" id="viewcollegeCouncilBtn"
-                                                data-collegeCouncil-id="{{ $collegeCouncil->id }}" data-bs-toggle="modal"
+                                                data-session-id="{{ $collegeCouncil->session_id }}" data-bs-toggle="modal"
                                                 data-bs-target="#viewModal">View</a>
 
                                             <a class="btn btn-primary btn-sm" role="button" id="editcollegeCouncilBtn"
-                                                data-collegeCouncil-id="{{ $collegeCouncil->id }}" data-bs-toggle="modal"
-                                                data-bs-target="#editModal">Edit</a>
+                                                href="{{ route('college-councils.edit', $collegeCouncil->id) }}">Edit</a>
 
                                             <a class="btn btn-danger btn-sm" role="button" id="deletecollegeCouncilBtn"
-                                                data-collegeCouncil-id="{{ $collegeCouncil->id }}" data-bs-toggle="modal"
+                                                data-college-council-id="{{ $collegeCouncil->id }}" data-bs-toggle="modal"
                                                 data-bs-target="#deleteModal">Delete</a>
 
                                         </td>
@@ -104,7 +103,7 @@
                     <div class="modal-dialog modal-lg modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="viewModalLabel">View collegeCouncil</h1>
+                                <h1 class="modal-title fs-5" id="viewModalLabel">View College Council</h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
@@ -131,13 +130,26 @@
             e.preventDefault();
             $.ajax({
                 type: "GET",
-                url: "{{ route('college-coumcils.create') }}",
+                url: "{{ route('college-councils.create') }}",
                 success: function(response) {
                     $("#createFormContent").html(response);
                 }
             });
         });
 
+
+        $(document).on('click', '#viewcollegeCouncilBtn', function() {
+
+            var sessionId = $(this).data('session-id'); // Get the session ID from the clicked button
+
+            $.ajax({
+                type: "GET",
+                url: `/college-councils/${sessionId}`,
+                success: function(response) {
+                    $('#viewFormContent').html(response);
+                }
+            });
+        });
 
         // $(document).on('click', '#deleteHeadquarterBtn', function() {
         //     var headquarterId = $(this).data('headquarter-id'); // Get the headquarter ID from the clicked button

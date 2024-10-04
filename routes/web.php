@@ -95,7 +95,7 @@ Route::prefix('sessions-departments')->controller(SessionDepartmentController::c
 Route::resource('sessions-departments', SessionDepartmentController::class);
 
 
-Route::resource('college-coumcils', CollegeCouncilController::class);
+Route::resource('college-councils', CollegeCouncilController::class);
 
 
 Route::resource('sessions-faculties', FacultySessionController::class);

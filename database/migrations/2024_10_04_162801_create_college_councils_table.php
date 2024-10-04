@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('session_id')->constrained('session_departments')->cascadeOnDelete();
             $table->unsignedBigInteger('agenda_id')->nullable();
-            $table->integer('status')->comment('0=>pending, 1=accepted, 2=rejected, 3=>rejected with reason');
+            $table->integer('status')->default(0)->comment('0=>pending, 1=accepted, 2=rejected, 3=>rejected with reason');
             $table->string('reject_reason')->nullable();
             $table->timestamps();
         });

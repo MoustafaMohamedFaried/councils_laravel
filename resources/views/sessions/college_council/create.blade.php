@@ -40,7 +40,7 @@
 
         $.ajax({
             type: "POST",
-            url: "{{ route('college-coumcils.store') }}",
+            url: "{{ route('college-councils.store') }}",
             data: {
                 session_id: formData.session_id,
                 _token: $('meta[name="csrf-token"]').attr('content')
@@ -80,15 +80,14 @@
 
                             <td class="text-center">
                                 <a class="btn btn-secondary btn-sm" role="button" id="viewcollegeCouncilBtn"
-                                    data-collegeCouncil-id="${response.data.id}" data-bs-toggle="modal"
+                                    data-session-id="${response.data.session_id}" data-bs-toggle="modal"
                                     data-bs-target="#viewModal">View</a>
 
-                                <a class="btn btn-primary btn-sm" role="button"
-                                    id="editcollegeCouncilBtn" data-collegeCouncil-id="${response.data.id}"
-                                    data-bs-toggle="modal" data-bs-target="#editModal">Edit</a>
+                                <a class="btn btn-primary btn-sm" role="button" id="editcollegeCouncilBtn"
+                                    href="{ route('college-councils.edit', ${response.data.session_id}) }">Edit</a>
 
                                 <a class="btn btn-danger btn-sm" role="button" id="deletecollegeCouncilBtn"
-                                    data-collegeCouncil-id="${response.data.id}" data-bs-toggle="modal"
+                                    data-college-council-id="${response.data.id}" data-bs-toggle="modal"
                                     data-bs-target="#deleteModal">Delete</a>
                             </td>
                         </tr>
