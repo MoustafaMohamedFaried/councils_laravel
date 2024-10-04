@@ -37,13 +37,17 @@
             </div>
         </div>
 
+        <button type="button" class="btn btn-primary" id="updateStatusTotal">Save changes</button>
+
         <div class="card mt-5">
             <div class="card-header">
                 <h5 class="card-title row">
                     <span class="col-md-11">Topics</span>
 
-                    <a class="col-md-1 btn btn-success btn-sm" role="button" id="statusBtn" data-bs-toggle="modal"
-                        data-bs-target="#statusModal">Take decision</a>
+                    @if ($data['collegeCouncil']->status == 0)
+                        <a class="col-md-1 btn btn-success btn-sm" role="button" id="statusBtn" data-bs-toggle="modal"
+                            data-bs-target="#statusModal">Take decision</a>
+                    @endif
                 </h5>
             </div>
 
@@ -88,12 +92,14 @@
                     <div class="modal-body">
                         @foreach ($data['collegeCouncilWithTopics'] as $collegeCouncilTopic)
                             <div class="row">
+
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="sessionCode" class="form-label">Topic</label>
                                         <p>{{ $collegeCouncilTopic->agenda->name }}</p>
                                     </div>
                                 </div>
+
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="singleStatus_{{ $collegeCouncilTopic->agenda_id }}"
@@ -108,6 +114,7 @@
                                         </select>
                                     </div>
                                 </div>
+
                                 <div class="col-md-12 d-none"
                                     id="singleRejectedReasonSection_{{ $collegeCouncilTopic->agenda_id }}">
                                     <div class="mb-3">
@@ -119,6 +126,7 @@
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         @endforeach
                     </div>
@@ -141,6 +149,8 @@
             }
         });
 
+        var collegeCouncilId = `{{ $data['collegeCouncil']->id }}`;
+        var sessionId = `{{ $data['collegeCouncil']->session_id }}`;
 
         $('#statusAll').on('change', function() {
             var selectedValue = $(this).val();
@@ -168,6 +178,157 @@
                     $('#singleRejectedReasonSection_' + agendaId).removeClass('d-block').addClass('d-none');
                     // Remove the required attribute from the textarea
                     $('#singleRejectedReason_' + agendaId).removeAttr('required');
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            $("#updateStatusTotal").click(function(e) {
+                e.preventDefault();
+
+                // Get the value of the 'statusAll' select field
+                var statusAll = $('#statusAll').val() || 0;
+
+                // Get the rejected reason if status is 'Rejected with reason'
+                var rejectedReason = '';
+                if (statusAll == '3') {
+                    rejectedReason = $('#rejectedReason').val();
+                }
+
+                $.ajax({
+                    type: "PUT",
+                    url: `/college-councils/${collegeCouncilId}`,
+                    data: {
+                        changeStatusTotal: statusAll,
+                        rejectReasonTotal: rejectedReason,
+                        session_id: sessionId
+                    },
+                    success: function(response) {
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "1500",
+                            "preventDuplicates": true,
+                            "extendedTimeOut": "1000"
+                        };
+
+                        toastr.success(response.message);
+
+                        $("#statusBtn").toggleClass("d-none");
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("An error occurred: ", error);
+                        console.log(xhr.responseText);
+
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "3000",
+                            "preventDuplicates": true,
+                            "extendedTimeOut": "1000"
+                        };
+
+                        // Parse the response JSON
+                        var response = JSON.parse(xhr.responseText);
+
+                        // Concatenate all error messages into a single string
+                        var errorMessage = "";
+
+                        if (response.errors) {
+                            $.each(response.errors, function(field, messages) {
+                                $.each(messages, function(index, message) {
+                                    errorMessage +=
+                                        `<div class="container">${message}<br></div>`;
+                                });
+                            });
+
+                            // Display all error messages in a single toastr notification
+                            toastr.error(errorMessage);
+                        }
+                    }
+                });
+            });
+        });
+
+
+        $("#updateStatus").click(function(e) {
+            e.preventDefault();
+
+            var statusData = [];
+
+            // Loop through all agenda items in the modal
+            $('.singleStatus').each(function() {
+                var agendaId = $(this).attr('id').split('_')[1]; // Extract agenda_id from the ID
+                var status = $(this).val(); // Get the selected status value
+                var rejectReason = ''; // Default to empty
+
+                // If the status is 'Rejected with reason' (value 3), get the rejected reason textarea value
+                if (status == '3') {
+                    rejectReason = $('#singleRejectedReason_' + agendaId).val();
+                }
+
+                // Add the data for this agenda to the statusData array
+                statusData.push({
+                    agenda_id: agendaId,
+                    status: status,
+                    reject_reason: rejectReason
+                });
+            });
+
+            // Send AJAX request with statusData
+            $.ajax({
+                type: "PUT",
+                url: `/college-councils/${collegeCouncilId}`,
+                data: {
+                    changeSingleStatus: statusData
+                },
+                success: function(response) {
+                    $('#closeStatusModal').click();
+
+                    toastr.options = {
+                        "closeButton": true,
+                        "progressBar": true,
+                        "positionClass": "toast-top-right",
+                        "timeOut": "1500",
+                        "preventDuplicates": true,
+                        "extendedTimeOut": "1000"
+                    };
+
+                    toastr.success(response.message);
+
+                },
+                error: function(xhr, status, error) {
+                    console.error("An error occurred: ", error);
+                    console.log(xhr.responseText);
+
+                    toastr.options = {
+                        "closeButton": true,
+                        "progressBar": true,
+                        "positionClass": "toast-top-right",
+                        "timeOut": "3000",
+                        "preventDuplicates": true,
+                        "extendedTimeOut": "1000"
+                    };
+
+                    // Parse the response JSON
+                    var response = JSON.parse(xhr.responseText);
+
+                    // Concatenate all error messages into a single string
+                    var errorMessage = "";
+
+                    if (response.errors) {
+                        $.each(response.errors, function(field, messages) {
+                            $.each(messages, function(index, message) {
+                                errorMessage +=
+                                    `<div class="container">${message}<br></div>`;
+                            });
+                        });
+
+                        // Display all error messages in a single toastr notification
+                        toastr.error(errorMessage);
+                    }
                 }
             });
         });

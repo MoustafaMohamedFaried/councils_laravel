@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CollegeCouncil;
 use App\Models\SessionDepartment;
 use App\Models\SessionDepartmentTopic;
+use Dotenv\Exception\ValidationException;
 use Illuminate\Http\Request;
 
 class CollegeCouncilController extends Controller
@@ -49,35 +50,44 @@ class CollegeCouncilController extends Controller
      */
     public function store(Request $request)
     {
-        // Get the session topics for the provided session ID
-        $sessionTopics = SessionDepartmentTopic::where('session_id', $request->session_id)->pluck('agenda_id');
+        try {
 
-        // Create one CollegeCouncil record with agenda_id as null
-        $collegeCouncil = CollegeCouncil::create([
-            'session_id' => $request->session_id,
-            'agenda_id' => null,
-            'status' => 0, // pending
-        ]);
+            // Get the session topics for the provided session ID
+            $sessionTopics = SessionDepartmentTopic::where('session_id', $request->session_id)->pluck('agenda_id');
 
-        // Create additional CollegeCouncil records with agenda_id from session topics
-        foreach ($sessionTopics as $topic) {
-            $insertWithTopics[] = [
+            // Create one CollegeCouncil record with agenda_id as null
+            $collegeCouncil = CollegeCouncil::create([
                 'session_id' => $request->session_id,
-                'agenda_id' => $topic,
+                'agenda_id' => null,
                 'status' => 0, // pending
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+            ]);
+
+            // Create additional CollegeCouncil records with agenda_id from session topics
+            foreach ($sessionTopics as $topic) {
+                $insertWithTopics[] = [
+                    'session_id' => $request->session_id,
+                    'agenda_id' => $topic,
+                    'status' => 0, // pending
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            CollegeCouncil::insert($insertWithTopics);
+
+            $record = CollegeCouncil::with(['session.responsible'])->findOrFail($collegeCouncil->id);
+
+            return response()->json([
+                'message' => "Session report uploaded successfully",
+                'data' => $record,
+            ], 200);
+        } catch (ValidationException $e) {
+            dd($e);
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], 422);
         }
-
-        CollegeCouncil::insert($insertWithTopics);
-
-        $record = CollegeCouncil::with(['session.responsible'])->findOrFail($collegeCouncil->id);
-
-        return response()->json([
-            'message' => "Session report uploaded successfully",
-            'data' => $record,
-        ], 200);
     }
 
     /**
@@ -127,7 +137,26 @@ class CollegeCouncilController extends Controller
      */
     public function update(Request $request, $collegeCouncil_id)
     {
-        //
+        try {
+            if ($request->changeSingleStatus) {
+                dd("Change Single");
+            } else {
+                // dd($request->all());
+                CollegeCouncil::where('session_id', $request->session_id)
+                    ->update([
+                        'status' => $request->changeStatusTotal,
+                        'reject_reason' => $request->rejectReasonTotal
+                    ]);
+            }
+
+            return response()->json(['message' => 'Decision has been taken successfully'],200);
+        } catch (ValidationException $e) {
+            dd($e);
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], 422);
+        }
     }
 
     /**
