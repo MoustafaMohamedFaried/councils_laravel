@@ -124,7 +124,7 @@
                         <li><a href="#">Session Management <em class="mdi mdi-chevron-down"></em></a>
                             <ul>
                                 <li><a href="{{ route('sessions-departments.index') }}">Department</a></li>
-                                <li><a href="#">College Council</a></li>
+                                <li><a href="{{ route('college-coumcils.index') }}">College Council</a></li>
                                 <li><a href="#">Faculty</a></li>
                             </ul>
                         </li>

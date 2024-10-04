@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CollegeCouncilController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DepartmentCouncilController;
 use App\Http\Controllers\FacultyController;
@@ -92,6 +93,9 @@ Route::prefix('sessions-departments')->controller(SessionDepartmentController::c
     Route::get('/getAgendasByDepartment/{department_id}', 'getAgendasByDepartment')->name('sessions-departments.getAgendasByDepartment');
 });
 Route::resource('sessions-departments', SessionDepartmentController::class);
+
+
+Route::resource('college-coumcils', CollegeCouncilController::class);
 
 
 Route::resource('sessions-faculties', FacultySessionController::class);
