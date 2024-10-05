@@ -11,8 +11,12 @@
             <div class="card">
                 <div class="card-header row">
                     <h6 class="col-md-11">Session Department Reports</h6>
-                    <a class="col-md-1 btn btn-success btn-sm" id="createcollegeCouncilBtn" type="button" role="button"
-                        data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
+
+                    {{-- if user postion is head of department or Secretary of the Department Council --}}
+                    @if (auth()->user()->position_id == 2 || auth()->user()->position_id == 3)
+                        <a class="col-md-1 btn btn-success btn-sm" id="createcollegeCouncilBtn" type="button" role="button"
+                            data-bs-toggle="modal" data-bs-target="#createModal">Create</a>
+                    @endif
                 </div>
 
                 <div class="card-body">
@@ -22,6 +26,7 @@
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Session Code</th>
+                                    <th scope="col">Status</th>
                                     <th scope="col">Place</th>
                                     <th scope="col">Responsible</th>
                                     <th scope="col">Actions</th>
@@ -34,19 +39,65 @@
                                     <tr id="collegeCouncil_{{ $collegeCouncil->id }}">
                                         <th class="text-center" scope="row">{{ $x }}</th>
                                         <td class="text-center">{{ $collegeCouncil->session->code }}</td>
+                                        <td class="text-center">
+                                            @if ($collegeCouncil->status == 0)
+                                                <span class="badge rounded-pill text-bg-primary">Pending</span>
+                                            @else
+                                                <span class="badge rounded-pill text-bg-success">Action Taken</span>
+                                            @endif
+                                        </td>
                                         <td class="text-center">{{ $collegeCouncil->session->place }}</td>
                                         <td class="text-center">{{ $collegeCouncil->session->responsible->name }}</td>
                                         <td class="text-center">
-                                            <a class="btn btn-secondary btn-sm" role="button" id="viewcollegeCouncilBtn"
-                                                data-session-id="{{ $collegeCouncil->session_id }}" data-bs-toggle="modal"
-                                                data-bs-target="#viewModal">View</a>
 
-                                            <a class="btn btn-primary btn-sm" role="button" id="editcollegeCouncilBtn"
-                                                href="{{ route('college-councils.edit', $collegeCouncil->id) }}">Edit</a>
+                                            <div class="btn-group">
+                                                <button type="button"
+                                                    class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item text-secondary" role="button"
+                                                            id="viewcollegeCouncilBtn"
+                                                            data-session-id="{{ $collegeCouncil->session_id }}"
+                                                            data-bs-toggle="modal" data-bs-target="#viewModal">View</a>
+                                                    </li>
 
-                                            <a class="btn btn-danger btn-sm" role="button" id="deletecollegeCouncilBtn"
-                                                data-college-council-id="{{ $collegeCouncil->id }}" data-bs-toggle="modal"
-                                                data-bs-target="#deleteModal">Delete</a>
+                                                    <li>
+                                                        <a class="dropdown-item text-info" role="button"
+                                                            id="viewcollegeCouncilBtn"
+                                                            href="{{ route('sessions-departments.report-details', $collegeCouncil->session_id) }}">Report
+                                                            details</a>
+                                                    </li>
+
+                                                    <!-- if user position is dean of college -->
+                                                    @if (auth()->user()->position_id == 5)
+                                                        <li>
+                                                            <a class="dropdown-item text-primary" role="button"
+                                                                id="editcollegeCouncilBtn"
+                                                                href="{{ route('college-councils.edit', $collegeCouncil->id) }}">Edit</a>
+
+                                                        </li>
+                                                    @endif
+
+                                                    <!-- if user position is head of department or Secretary of the Department Council -->
+                                                    @if (auth()->user()->position_id == 3 || auth()->user()->position_id == 4)
+                                                        <!-- if status pending -->
+                                                        @if ($collegeCouncil->status == 0)
+                                                            <li>
+                                                                <a class="dropdown-item text-danger" role="button"
+                                                                    id="deletecollegeCouncilBtn"
+                                                                    data-college-council-id="{{ $collegeCouncil->id }}"
+                                                                    data-session-id="{{ $collegeCouncil->session_id }}"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#deleteModal">Delete</a>
+                                                            </li>
+                                                        @endif
+                                                    @endif
+
+                                                </ul>
+                                            </div>
 
                                         </td>
                                     </tr>
@@ -99,7 +150,8 @@
                 </div>
 
                 <!-- View Modal -->
-                <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+                <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel"
+                    aria-hidden="true">
                     <div class="modal-dialog modal-lg modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -151,66 +203,69 @@
             });
         });
 
-        // $(document).on('click', '#deleteHeadquarterBtn', function() {
-        //     var headquarterId = $(this).data('headquarter-id'); // Get the headquarter ID from the clicked button
-        //     // Show the confirmation modal
-        //     $('#deleteModal').modal('show');
+        $(document).on('click', '#deletecollegeCouncilBtn', function() {
+            var sessionId = $(this).data('session-id'); // Get the session ID from the clicked button
+            var collegeCouncilId = $(this).data(
+                'college-council-id'); // Get the collegeCouncil ID from the clicked button
 
-        //     // Handle the delete confirmation button click inside the modal
-        //     $('#confirmDeleteBtn').off('click').on('click', function() {
-        //         $.ajax({
-        //             type: "DELETE",
-        //             url: `/headquarters/${headquarterId}`,
-        //             success: function(response) {
-        //                 $('#deleteModal').modal('hide'); // Hide the modal after deletion
+            // Show the confirmation modal
+            $('#deleteModal').modal('show');
 
-        //                 $(`#headquarter_${headquarterId}`).remove();
+            // Handle the delete confirmation button click inside the modal
+            $('#confirmDeleteBtn').off('click').on('click', function() {
+                $.ajax({
+                    type: "DELETE",
+                    url: `/college-councils/${sessionId}`,
+                    success: function(response) {
+                        $('#deleteModal').modal('hide'); // Hide the modal after deletion
 
-        //                 toastr.options = {
-        //                     "closeButton": true,
-        //                     "progressBar": true,
-        //                     "positionClass": "toast-top-right",
-        //                     "timeOut": "3500",
-        //                     "preventDuplicates": true,
-        //                     "extendedTimeOut": "1000"
-        //                 };
+                        $(`#collegeCouncil_${collegeCouncilId}`).remove();
 
-        //                 toastr.success(response.message);
-        //             },
-        //             error: function(xhr, status, error) {
-        //                 console.error("An error occurred: ", error);
-        //                 console.log(xhr.responseText);
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "2500",
+                            "preventDuplicates": true,
+                            "extendedTimeOut": "1000"
+                        };
 
-        //                 toastr.options = {
-        //                     "closeButton": true,
-        //                     "progressBar": true,
-        //                     "positionClass": "toast-top-right",
-        //                     "timeOut": "3000",
-        //                     "preventDuplicates": true,
-        //                     "extendedTimeOut": "1000"
-        //                 };
+                        toastr.success(response.message);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("An error occurred: ", error);
+                        console.log(xhr.responseText);
 
-        //                 // Parse the response JSON
-        //                 var response = JSON.parse(xhr.responseText);
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "3000",
+                            "preventDuplicates": true,
+                            "extendedTimeOut": "1000"
+                        };
 
-        //                 // Concatenate all error messages into a single string
-        //                 var errorMessage = "";
+                        // Parse the response JSON
+                        var response = JSON.parse(xhr.responseText);
 
-        //                 if (response.errors) {
-        //                     $.each(response.errors, function(field, messages) {
-        //                         $.each(messages, function(index, message) {
-        //                             errorMessage +=
-        //                                 `<div class="container">${message}<br></div>`;
-        //                         });
-        //                     });
+                        // Concatenate all error messages into a single string
+                        var errorMessage = "";
 
-        //                     // Display all error messages in a single toastr notification
-        //                     toastr.error(errorMessage);
-        //                 }
-        //             }
-        //         });
-        //     });
-        // });
+                        if (response.errors) {
+                            $.each(response.errors, function(field, messages) {
+                                $.each(messages, function(index, message) {
+                                    errorMessage +=
+                                        `<div class="container">${message}<br></div>`;
+                                });
+                            });
+
+                            // Display all error messages in a single toastr notification
+                            toastr.error(errorMessage);
+                        }
+                    }
+                });
+            });
+        });
     </script>
 
 

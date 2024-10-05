@@ -26,6 +26,8 @@
         }
     });
 
+    var userPositionId = `{{ auth()->user()->position_id }}`;
+
     $("#submitCreateForm").click(function(e) {
         e.preventDefault();
         // Collect form data
@@ -70,28 +72,45 @@
                 // Calculate the next index count based on the number of rows
                 var nextIndex = existingRowsCount > 0 ? existingRowsCount + 1 : 1;
 
-                // Append the new row to the faculty container (which should be a <tbody>)
-                collegeCouncilContainer.append(`
-                        <tr id="collegeCouncil_${response.data.id}">
-                            <th class="text-center" scope="row">${nextIndex}</th>
-                            <td class="text-center">${response.data.session.code}</td>
-                            <td class="text-center">${response.data.session.place}</td>
-                            <td class="text-center">${response.data.session.responsible.name}</td>
+                // Append the new row to the container
+                var newRow = `
+                    <tr id="collegeCouncil_${response.data.id}">
+                        <th class="text-center" scope="row">${nextIndex}</th>
+                        <td class="text-center">${response.data.session.code}</td>
+                        <td class="text-center">${response.data.session.place}</td>
+                        <td class="text-center">${response.data.session.responsible.name}</td>
+                        <td class="text-center">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item text-secondary" role="button" id="viewcollegeCouncilBtn" data-session-id="${response.data.session_id}" data-bs-toggle="modal" data-bs-target="#viewModal">View</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item text-info" role="button" href="/sessions-departments/report-details/${response.data.session_id}">Report details</a>
+                                    </li>`;
 
-                            <td class="text-center">
-                                <a class="btn btn-secondary btn-sm" role="button" id="viewcollegeCouncilBtn"
-                                    data-session-id="${response.data.session_id}" data-bs-toggle="modal"
-                                    data-bs-target="#viewModal">View</a>
+                // Only show edit/delete options if the user is the dean of the college (position_id = 5)
+                if (userPositionId === 5) {
+                    newRow += `
+                            <li>
+                                <a class="dropdown-item text-primary" role="button" href="/college-councils/${response.data.id}/edit">Edit</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger" role="button" data-college-council-id="${response.data.id}" data-session-id="${response.data.session_id}" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</a>
+                            </li>`;
+                }
 
-                                <a class="btn btn-primary btn-sm" role="button" id="editcollegeCouncilBtn"
-                                    href="{ route('college-councils.edit', ${response.data.session_id}) }">Edit</a>
-
-                                <a class="btn btn-danger btn-sm" role="button" id="deletecollegeCouncilBtn"
-                                    data-college-council-id="${response.data.id}" data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal">Delete</a>
+                newRow += `
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
-                    `);
+                    `;
+
+                collegeCouncilContainer.append(newRow);
             },
 
             error: function(xhr, status, error) {
@@ -116,7 +135,8 @@
                 if (response.errors) {
                     $.each(response.errors, function(field, messages) {
                         $.each(messages, function(index, message) {
-                            errorMessage += `<div class="container">${message}<br></div>`;
+                            errorMessage +=
+                                `<div class="container">${message}<br></div>`;
                         });
                     });
 

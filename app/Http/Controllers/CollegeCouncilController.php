@@ -37,9 +37,13 @@ class CollegeCouncilController extends Controller
     public function create()
     {
         $sessions = SessionDepartment::get();
+        $collegeCouncilSessionIds = CollegeCouncil::pluck('session_id')->toArray(); // Extract session_ids
+
+        // Filter out sessions that have their id in $collegeCouncilSessionIds
+        $filteredSessions = $sessions->whereNotIn('id', $collegeCouncilSessionIds);
 
         $data = [
-            'sessions' => $sessions
+            'sessions' => $filteredSessions
         ];
 
         return view('sessions.college_council.create', compact('data'));
@@ -151,6 +155,11 @@ class CollegeCouncilController extends Controller
                                 'reject_reason' => $record['reject_reason'],
                             ]);
                     }
+                    CollegeCouncil::where('session_id', $request->session_id)
+                        ->whereNull('agenda_id')
+                        ->update([
+                            'status' => 4, // action taked
+                        ]);
                 }
             } else {
                 CollegeCouncil::where('session_id', $request->session_id)
@@ -173,8 +182,18 @@ class CollegeCouncilController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($collegeCouncil_id)
+    public function destroy($session_id)
     {
-        //
+        try {
+            CollegeCouncil::where('session_id', $session_id)->delete();
+
+            return response()->json(['message' => 'Report deleted successfully'], 200);
+        } catch (ValidationException $e) {
+            dd($e);
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], 422);
+        }
     }
 }

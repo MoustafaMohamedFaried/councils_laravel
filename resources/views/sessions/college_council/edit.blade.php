@@ -19,7 +19,7 @@
                 <div class="mb-3">
                     <label for="statusAll" class="form-label">Status</label>
                     <select class="form-select" id="statusAll" name="status_total">
-                        <option disabled {{ is_null($data['collegeCouncil']->status) ? 'selected' : '' }} value>Select
+                        <option disabled {{ $data['collegeCouncil']->status == 0 || $data['collegeCouncil']->status == 4 ? 'selected' : '' }} value>Select
                             option</option>
                         <option value="1" {{ $data['collegeCouncil']->status == 1 ? 'selected' : '' }}>Accepted
                         </option>
@@ -48,7 +48,7 @@
                 <h5 class="card-title row">
                     <span class="col-md-11">Topics</span>
 
-                    @if ($data['collegeCouncil']->status == 0)
+                    @if ($data['collegeCouncil']->status == 0 || $data['collegeCouncil']->status == 4)
                         <a class="col-md-1 btn btn-success btn-sm" role="button" id="statusBtn" data-bs-toggle="modal"
                             data-bs-target="#statusModal">Take decision</a>
                     @endif
@@ -244,7 +244,7 @@
                             window.location.reload();
                         }, 1000); // Delay in milliseconds (match this with the timeOut value)
 
-                        $("#statusBtn").toggleClass("d-none");
+                        $("#statusBtn").addClass("d-none");
                     },
                     error: function(xhr, status, error) {
                         console.error("An error occurred: ", error);
