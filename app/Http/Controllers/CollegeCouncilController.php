@@ -139,9 +139,20 @@ class CollegeCouncilController extends Controller
     {
         try {
             if ($request->changeSingleStatus) {
-                dd("Change Single");
+                // Check if the input 'changeSingleStatus' is an array
+                if (is_array($request->input('changeSingleStatus'))) {
+                    // Loop through each record in the input changeSingleStatus
+                    foreach ($request->input('changeSingleStatus') as $record) {
+                        // Perform the update for each record
+                        CollegeCouncil::where('session_id', $request->session_id)
+                            ->where('agenda_id', $record['agenda_id']) // Ensure you're updating the correct agenda_id
+                            ->update([
+                                'status' => $record['status'],
+                                'reject_reason' => $record['reject_reason'],
+                            ]);
+                    }
+                }
             } else {
-                // dd($request->all());
                 CollegeCouncil::where('session_id', $request->session_id)
                     ->update([
                         'status' => $request->changeStatusTotal,
@@ -149,7 +160,7 @@ class CollegeCouncilController extends Controller
                     ]);
             }
 
-            return response()->json(['message' => 'Decision has been taken successfully'],200);
+            return response()->json(['message' => 'Decision has been taken successfully'], 200);
         } catch (ValidationException $e) {
             dd($e);
             return response()->json([

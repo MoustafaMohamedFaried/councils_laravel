@@ -19,10 +19,14 @@
                 <div class="mb-3">
                     <label for="statusAll" class="form-label">Status</label>
                     <select class="form-select" id="statusAll" name="status_total">
-                        <option disabled selected value>Select option</option>
-                        <option value="1">Accepted</option>
-                        <option value="2">Rejected</option>
-                        <option value="3">Rejected with reason</option>
+                        <option disabled {{ is_null($data['collegeCouncil']->status) ? 'selected' : '' }} value>Select
+                            option</option>
+                        <option value="1" {{ $data['collegeCouncil']->status == 1 ? 'selected' : '' }}>Accepted
+                        </option>
+                        <option value="2" {{ $data['collegeCouncil']->status == 2 ? 'selected' : '' }}>Rejected
+                        </option>
+                        <option value="3" {{ $data['collegeCouncil']->status == 3 ? 'selected' : '' }}>Rejected with
+                            reason</option>
                     </select>
                 </div>
             </div>
@@ -30,7 +34,7 @@
                 <div class="mb-3">
                     <div class="form-floating">
                         <textarea class="form-control" name="reject_reason_total" placeholder="Rejected reason" id="rejectedReason"
-                            style="height: 100px"></textarea>
+                            style="height: 100px">{{ $data['collegeCouncil']->reject_reason ? $data['collegeCouncil']->reject_reason : '' }}</textarea>
                         <label for="rejectedReason">Rejected reason</label>
                     </div>
                 </div>
@@ -104,14 +108,22 @@
                                     <div class="mb-3">
                                         <label for="singleStatus_{{ $collegeCouncilTopic->agenda_id }}"
                                             class="form-label">Status</label>
+
                                         <select class="form-select singleStatus"
                                             id="singleStatus_{{ $collegeCouncilTopic->agenda_id }}"
                                             name="status_single[{{ $collegeCouncilTopic->agenda_id }}]">
-                                            <option disabled selected value>Select option</option>
-                                            <option value="1">Accepted</option>
-                                            <option value="2">Rejected</option>
-                                            <option value="3">Rejected with reason</option>
+
+                                            <option disabled {{ is_null($collegeCouncilTopic->status) ? 'selected' : '' }}
+                                                value>Select option</option>
+                                            <option value="1"
+                                                {{ $collegeCouncilTopic->status == 1 ? 'selected' : '' }}>Accepted</option>
+                                            <option value="2"
+                                                {{ $collegeCouncilTopic->status == 2 ? 'selected' : '' }}>Rejected</option>
+                                            <option value="3"
+                                                {{ $collegeCouncilTopic->status == 3 ? 'selected' : '' }}>Rejected with
+                                                reason</option>
                                         </select>
+
                                     </div>
                                 </div>
 
@@ -121,7 +133,8 @@
                                         <div class="form-floating">
                                             <textarea class="form-control" name="reject_reason_single" placeholder="Rejected reason"
                                                 id="singleRejectedReason_{{ $collegeCouncilTopic->agenda_id }}" style="height: 100px"></textarea>
-                                            <label for="singleRejectedReason_{{ $collegeCouncilTopic->agenda_id }}">Rejected
+                                            <label
+                                                for="singleRejectedReason_{{ $collegeCouncilTopic->agenda_id }}">Rejected
                                                 reason</label>
                                         </div>
                                     </div>
@@ -152,14 +165,25 @@
         var collegeCouncilId = `{{ $data['collegeCouncil']->id }}`;
         var sessionId = `{{ $data['collegeCouncil']->session_id }}`;
 
-        $('#statusAll').on('change', function() {
-            var selectedValue = $(this).val();
-            if (selectedValue == '3') {
+        $(document).ready(function() {
+            // Initial check on page load
+            if ($('#rejectedReason').val()) {
                 $('#rejectReasonSection').removeClass('d-none').addClass('d-block');
-                $('#rejectedReason').attr('required', 'required');
             } else {
                 $('#rejectReasonSection').removeClass('d-block').addClass('d-none');
             }
+
+            // On change event for statusAll select
+            $('#statusAll').on('change', function() {
+                var selectedValue = $(this).val();
+                if (selectedValue == '3') {
+                    $('#rejectReasonSection').removeClass('d-none').addClass('d-block');
+                    $('#rejectedReason').attr('required', 'required');
+                } else {
+                    $('#rejectReasonSection').removeClass('d-block').addClass('d-none');
+                    $('#rejectedReason').removeAttr('required'); // Remove required if status is not 3
+                }
+            });
         });
 
         $(document).ready(function() {
@@ -208,12 +232,17 @@
                             "closeButton": true,
                             "progressBar": true,
                             "positionClass": "toast-top-right",
-                            "timeOut": "1500",
+                            "timeOut": "1000",
                             "preventDuplicates": true,
                             "extendedTimeOut": "1000"
                         };
 
                         toastr.success(response.message);
+
+                        // Redirect after a short delay to allow the toastr to be visible
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 1000); // Delay in milliseconds (match this with the timeOut value)
 
                         $("#statusBtn").toggleClass("d-none");
                     },
@@ -252,84 +281,91 @@
             });
         });
 
+        $(document).ready(function () {
+            $("#updateStatus").click(function(e) {
+                e.preventDefault();
 
-        $("#updateStatus").click(function(e) {
-            e.preventDefault();
+                var statusData = [];
 
-            var statusData = [];
+                // Loop through all agenda items in the modal
+                $('.singleStatus').each(function() {
+                    var agendaId = $(this).attr('id').split('_')[1]; // Extract agenda_id from the ID
+                    var status = $(this).val(); // Get the selected status value
+                    var rejectReason = ''; // Default to empty
 
-            // Loop through all agenda items in the modal
-            $('.singleStatus').each(function() {
-                var agendaId = $(this).attr('id').split('_')[1]; // Extract agenda_id from the ID
-                var status = $(this).val(); // Get the selected status value
-                var rejectReason = ''; // Default to empty
-
-                // If the status is 'Rejected with reason' (value 3), get the rejected reason textarea value
-                if (status == '3') {
-                    rejectReason = $('#singleRejectedReason_' + agendaId).val();
-                }
-
-                // Add the data for this agenda to the statusData array
-                statusData.push({
-                    agenda_id: agendaId,
-                    status: status,
-                    reject_reason: rejectReason
-                });
-            });
-
-            // Send AJAX request with statusData
-            $.ajax({
-                type: "PUT",
-                url: `/college-councils/${collegeCouncilId}`,
-                data: {
-                    changeSingleStatus: statusData
-                },
-                success: function(response) {
-                    $('#closeStatusModal').click();
-
-                    toastr.options = {
-                        "closeButton": true,
-                        "progressBar": true,
-                        "positionClass": "toast-top-right",
-                        "timeOut": "1500",
-                        "preventDuplicates": true,
-                        "extendedTimeOut": "1000"
-                    };
-
-                    toastr.success(response.message);
-
-                },
-                error: function(xhr, status, error) {
-                    console.error("An error occurred: ", error);
-                    console.log(xhr.responseText);
-
-                    toastr.options = {
-                        "closeButton": true,
-                        "progressBar": true,
-                        "positionClass": "toast-top-right",
-                        "timeOut": "3000",
-                        "preventDuplicates": true,
-                        "extendedTimeOut": "1000"
-                    };
-
-                    // Parse the response JSON
-                    var response = JSON.parse(xhr.responseText);
-
-                    // Concatenate all error messages into a single string
-                    var errorMessage = "";
-
-                    if (response.errors) {
-                        $.each(response.errors, function(field, messages) {
-                            $.each(messages, function(index, message) {
-                                errorMessage +=
-                                    `<div class="container">${message}<br></div>`;
-                            });
-                        });
-
-                        // Display all error messages in a single toastr notification
-                        toastr.error(errorMessage);
+                    // If the status is 'Rejected with reason' (value 3), get the rejected reason textarea value
+                    if (status == '3') {
+                        rejectReason = $('#singleRejectedReason_' + agendaId).val();
                     }
-                }
+
+                    // Add the data for this agenda to the statusData array
+                    statusData.push({
+                        agenda_id: agendaId,
+                        status: status,
+                        reject_reason: rejectReason
+                    });
+                });
+
+                // Send AJAX request with statusData
+                $.ajax({
+                    type: "PUT",
+                    url: `/college-councils/${collegeCouncilId}`,
+                    data: {
+                        session_id: sessionId,
+                        changeSingleStatus: statusData
+                    },
+                    success: function(response) {
+                        $('#closeStatusModal').click();
+
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "1000",
+                            "preventDuplicates": true,
+                            "extendedTimeOut": "1000"
+                        };
+
+                        toastr.success(response.message);
+
+                        // Redirect after a short delay to allow the toastr to be visible
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 1000); // Delay in milliseconds (match this with the timeOut value)
+
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("An error occurred: ", error);
+                        console.log(xhr.responseText);
+
+                        toastr.options = {
+                            "closeButton": true,
+                            "progressBar": true,
+                            "positionClass": "toast-top-right",
+                            "timeOut": "3000",
+                            "preventDuplicates": true,
+                            "extendedTimeOut": "1000"
+                        };
+
+                        // Parse the response JSON
+                        var response = JSON.parse(xhr.responseText);
+
+                        // Concatenate all error messages into a single string
+                        var errorMessage = "";
+
+                        if (response.errors) {
+                            $.each(response.errors, function(field, messages) {
+                                $.each(messages, function(index, message) {
+                                    errorMessage +=
+                                        `<div class="container">${message}<br></div>`;
+                                });
+                            });
+
+                            // Display all error messages in a single toastr notification
+                            toastr.error(errorMessage);
+                        }
+                    }
+                });
             });
         });
     </script>
