@@ -125,7 +125,7 @@
                             <ul>
                                 <li><a href="{{ route('sessions-departments.index') }}">Department</a></li>
                                 <li><a href="{{ route('college-councils.index') }}">College Council</a></li>
-                                <li><a href="#">Faculty</a></li>
+                                <li><a href="{{ route('sessions-faculties.index') }}">Faculty</a></li>
                             </ul>
                         </li>
                     </ul>

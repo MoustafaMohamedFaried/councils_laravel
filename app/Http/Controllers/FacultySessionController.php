@@ -8,17 +8,25 @@ use App\Http\Requests\UpdateFacultySessionRequest;
 
 class FacultySessionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('is_active');
+        // $this->middleware('ajax_only')->except('index', 'create', 'edit', 'show', 'startSession', 'sessionReport', 'reportDetails');
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // $sessions = FacultySession::paginate(10);
-        // $data = [
-        //     'sessions' => $sessions
-        // ];
-        return view('sessions.faculty.index');
-        // return view('sessions.faculty.index',compact('data'));
+        $sessions = FacultySession::paginate(10);
+
+        $data = [
+            'sessions' => $sessions
+        ];
+
+        return view('sessions.faculty.index',compact('data'));
     }
 
     /**
@@ -40,7 +48,7 @@ class FacultySessionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(FacultySession $facultySession)
+    public function show($session_id)
     {
         //
     }
@@ -48,7 +56,7 @@ class FacultySessionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(FacultySession $facultySession)
+    public function edit($session_id)
     {
         //
     }
@@ -56,7 +64,7 @@ class FacultySessionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateFacultySessionRequest $request, FacultySession $facultySession)
+    public function update(UpdateFacultySessionRequest $request, $session_id)
     {
         //
     }
@@ -64,7 +72,7 @@ class FacultySessionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(FacultySession $facultySession)
+    public function destroy($session_id)
     {
         //
     }
